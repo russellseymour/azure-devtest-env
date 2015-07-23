@@ -1,0 +1,220 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": "10.208.0.0/18",
+      "metadata" : {
+        "description" : "Address Prefix"
+      }
+    },
+    "subnetPrefixMgmt": {
+      "type": "string",
+      "defaultValue": "10.208.48.0/21",
+      "metadata" : {
+        "description" : "Subnet prefix"
+      }
+    },
+    "subnetPrefixFrontEnd": {
+      "type": "string",
+      "defaultValue": "10.208.8.0/23",
+      "metadata" : {
+        "description" : "Subnet prefix"
+      }
+    },
+    "subnetPrefix1": {
+      "type": "string",
+      "defaultValue": "10.208.0.0/29",
+      "metadata" : {
+        "description" : "Dev1 subnet prefix"
+      }
+    },
+    "subnetPrefix2": {
+      "type": "string",
+      "defaultValue": "10.208.0.8/29",
+      "metadata" : {
+        "description" : "Dev2 subnet prefix"
+      }
+    },
+    "subnetPrefix3": {
+      "type": "string",
+      "defaultValue": "10.208.0.16/29",
+      "metadata" : {
+        "description" : "Dev3 subnet prefix"
+      }
+    },
+    "subnetPrefixGw": {
+      "type": "string",
+      "defaultValue": "10.208.220.0/24",
+      "metadata" : {
+        "description" : "Gateway subnet prefix"
+      }
+    },
+    "mgmtNSGName": {
+      "type": "string",
+      "defaultValue": "mgmtNSG",
+      "metadata" : {
+        "description" : "management network security group"
+      }
+    },
+    "appNSGName": {
+      "type": "string",
+      "defaultValue": "appNSG",
+      "metadata" : {
+        "description" : "application network security group"
+      }
+    }
+  },
+  "variables" : {
+    "virtualNetworkName" : "devnet",
+    "subnetNameMgmt" : "subnetMgmt",
+    "subnetNameFrontEnd" : "subnetFrontEnd",
+    "subnetName1" : "subnetdev101",
+    "subnetName2" : "subnetdev102",
+    "subnetName3" : "subnetdev103",
+    "subnetNameGw" : "GatewaySubnet",
+    
+    "vnetID":"[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+    "subnetRefGw" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameGw'))]",
+    "subnetRefMgmt" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameMgmt'))]",
+    "subnetRefFrontEnd" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameFrontEnd'))]",
+    "subnetRef1" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName1'))]",
+    "subnetRef2" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName2'))]",
+    "subnetRef3" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName3'))]",
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[parameters('mgmtNSGName')]",
+      "location": "[resourceGroup().location]",
+      "properties":
+      {
+        "securityRules": [
+          {
+            "name": "rdp_rule",
+            "properties":
+            {
+              "description": "Allow RDP",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "10.1.1.0/24",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 100,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[parameters('appNSGName')]",
+      "location": "[resourceGroup().location]",
+
+      "properties": {
+        "securityRules": [{
+          "name": "Allow_FE",
+          "properties": {
+            "description": "Allow HTTPS traffic",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "443",
+            "sourceAddressPrefix": "Internet",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 100,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "Block_RDP_Internet",
+          "properties": {
+            "description": "Block RDP",
+            "protocol": "tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "3389",
+            "sourceAddressPrefix": "Internet",
+            "destinationAddressPrefix": "*",
+            "access": "Deny",
+            "priority": 101,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "Block_Internet_Outbound",
+          "properties": {
+            "description": "Block Internet",
+            "protocol": "*",
+            "sourcePortRange": "*",
+            "destinationPortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "Internet",
+            "access": "Deny",
+            "priority": 200,
+            "direction": "Outbound"
+          }
+          }]
+        }
+      },
+      {
+        "apiVersion": "2015-05-01-preview",
+        "type": "Microsoft.Network/virtualNetworks",
+        "name": "[variables('virtualNetworkName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('mgmtNSGName'))]",
+          "[concat('Microsoft.Network/networkSecurityGroups/', parameters('appNSGName'))]"
+        ],
+        "properties": {
+          "addressSpace": {
+            "addressPrefixes": [
+              "[parameters('addressPrefix')]",
+              ]
+            },
+            "subnets": [
+              {
+                "name": "[variables('subnetName1')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetPrefix1')]"                  
+                }
+              },
+              {
+                "name": "[variables('subnetName2')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetPrefix2')]",
+                  "networkSecurityGroup" : {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('appNSGName'))]"
+                  }
+                }
+              },
+              {
+                "name": "[variables('subnetName3')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetPrefix3')]",
+                  "networkSecurityGroup" : {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('appNSGName'))]"
+                  }
+                }
+              },
+              {
+                "name": "[variables('subnetNameMgmt')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetPrefixMgmt')]"
+                }
+              },
+              {
+                "name": "[variables('subnetNameFrontEnd')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetPrefixFrontEnd')]"
+                }
+              }              
+            ]
+          }
+        }
+      ]
+    }

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "devVNETResourceGroup": {
+      "type": "string",
+      "defaultValue": "devVNET",
+      "metadata": {
+        "description": "The devVNET resource group."
+      }
+    },
+    "devVNETVirtualNetworkName": {
+      "type": "string",
+      "defaultValue": "devVNET",
+      "metadata": {
+        "description": "The devVNET network name."
+      }
+    }
+  },
+  "variables" : {
+    "vnetID" : "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
+    "subnetNameMgmt" : "subnetMgmt",
+    "nicName2" : "networkInterfaceMgmt",
+    "subnetRefMgmt" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameMgmt'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName2')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRefMgmt')]"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
