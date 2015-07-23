@@ -83,8 +83,8 @@
       }
     },
     "sizeOfDiskInGB" : {
-        }
       "type" : "string",
+      "metadata" : {
         "description" : "Size of the empty data disk in GB"
       }
     }
