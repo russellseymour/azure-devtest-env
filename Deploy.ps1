@@ -10,10 +10,17 @@ New-AzureResourceGroup -Name mgmt -Location "North Europe" `
 
 $secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
 New-AzureResourceGroup -Name "as-dev-101" -Location "North Europe" `
--TemplateFile "c:\projects\Azure\app\azuredeploy.json" `
--TemplateParameterFile "c:\projects\Azure\app\azuredeploy.parameters.json" `
+-TemplateFile "c:\projects\GitHub\Samples\app\azuredeploy.json" `
+-TemplateParameterFile "c:\projects\GitHub\Samples\app\azuredeploy.parameters.json" `
 -appSubnetName "subnetdev101" -storageName "asdev101" -vmName "asaz-devweb-101" `
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
+-Verbose -Force  
+
+$secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
+New-AzureResourceGroup -Name "testvm" -Location "North Europe" `
+-TemplateFile "c:\projects\GitHub\Samples\testvm\azuredeploy.json" `
+-TemplateParameterFile "c:\projects\GitHub\Samples\testvm\azuredeploy.parameters.json" `
+-appSubnetName "subnetFrontEnd" -adminPassword $secPwd  `
 -Verbose -Force  
 
 New-AzureResourceGroup -Name app2 -Location "North Europe" `

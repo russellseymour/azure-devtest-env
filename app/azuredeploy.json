@@ -66,7 +66,7 @@
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_D2"
+      "defaultValue": "Standard_D3"
     },
     "modulesUrl": {
       "type": "string",
@@ -83,10 +83,10 @@
       }
     },
     "sizeOfDiskInGB" : {
-        "type" : "string",
-        "metadata" : {
-            "description" : "Size of the empty data disk in GB"
         }
+      "type" : "string",
+        "description" : "Size of the empty data disk in GB"
+      }
     }
   },
   "variables" : {
@@ -99,18 +99,17 @@
     "subnetRefApp" : "[concat(variables('vnetID'),'/subnets/',parameters('appSubnetName'))]",
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicNameApp'))]",
 
+    "nicNameFrontEnd" : "networkInterfaceFE",
     "subnetRefFrontEnd" : "[concat(variables('vnetID'),'/subnets/subnetFrontEnd')]",
     "loadBalancerName" : "webLoadBalancer",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
-
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
     "backEndIPConfigID": "[concat(variables('nicId'),'/ipConfigurations/ipconfig1')]",
 
     "vmOSDiskName": "osdisk",
     "vmStorageAccountContainerName": "vhds",
 
-    "vmExtensionName": "dscExtension",
-    "availabilitySet": "availabilitySet1"
+    "vmExtensionName": "dscExtension"
   },
   "resources": [
     {
@@ -119,7 +118,7 @@
       "name": "[variables('nicNameApp')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-          "[concat('Microsoft.Storage/loadBalancers/', variables('loadBalancerName'))]"
+        "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -129,200 +128,183 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnetRefApp')]"
-              }
-            },
-            "loadBalancerBackendAddressPools": [{
-              "id": "[concat('Microsoft.Network/loadBalancers/',variables('loadBalancerName'),'/backendAddressPools/loadBalancerBackEnd')]"
-              }],
-              "loadBalancerInboundNatRules": [
+              },
+              "loadBalancerBackendAddressPools": [
                 {
-                  "id": "[concat('Microsoft.Network/loadBalancers/',variables('loadBalancerName'),'/inboundNatRule/HTTP')]"
-                },
-                {
-                  "id": "[concat('Microsoft.Network/loadBalancers/',variables('loadBalancerName'),'/inboundNatRule/HTTPS')]"
+                  "id": "[concat(variables('lbID'), '/backendAddressPools/loadBalancerBackEnd')]"
                 }
               ]
             }
-          ]
-        }
-      },
-      {
-        "apiVersion": "2015-05-01-preview",
-        "type": "Microsoft.Network/networkInterfaces",
-        "name": "[variables('nicNameMgmt')]",
-        "location": "[resourceGroup().location]",
-        "properties": {
-          "ipConfigurations": [
-            {
-              "name": "ipconfig1",
-              "properties": {
-                "privateIPAllocationMethod": "Dynamic",
-                "subnet": {
-                  "id": "[variables('subnetRefMgmt')]"
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicNameMgmt')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetRefMgmt')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "name": "[variables('loadBalancerName')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "frontendIPConfigurations": [{
+          "name": "loadBalancerFrontEnd",
+          "properties": {
+            "subnet": {
+              "id": "[variables('subnetRefFrontEnd')]"
+            }
+          }
+          }],
+          "backendAddressPools": [{
+            "name": "loadBalancerBackEnd"
+          }
+        ],
+        "loadBalancingRules": [{
+          "properties": {
+            "frontendIPConfiguration": {
+              "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
+            },
+            "backendAddressPool": {
+              "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
+            },
+            "probe": {
+              "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/probes/lbprobe')]"
+            },
+            "protocol": "Tcp",
+            "frontendPort": 80,
+            "backendPort": 80,
+            "idleTimeoutInMinutes": 15
+
+          },
+          "Name": "lbrule"
+          }],
+          "probes": [{
+            "properties": {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            },
+            "name": "lbprobe"
+            }]
+          }
+        },
+        {
+          "name": "[parameters('storageName')]",
+          "type": "Microsoft.Storage/storageAccounts",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2015-05-01-preview",
+          "tags": {
+            "displayName": "Storage"
+          },
+          "properties": {
+            "accountType": "[parameters('storageType')]"
+          }
+        },
+        {
+          "name": "[parameters('vmName')]",
+          "type": "Microsoft.Compute/virtualMachines",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2015-05-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Storage/storageAccounts/', parameters('storageName'))]",
+            "[concat('Microsoft.Network/networkInterfaces/', variables('nicNameApp'))]",
+            "[concat('Microsoft.Network/networkInterfaces/', variables('nicNameMgmt'))]"
+          ],
+          "tags": {
+            "displayName": "devweb"
+          },
+          "properties": {
+            "hardwareProfile": {
+              "vmSize": "[parameters('vmSize')]"
+            },
+            "osProfile": {
+              "computername": "[parameters('vmName')]",
+              "adminUsername": "[parameters('adminUsername')]",
+              "adminPassword": "[parameters('adminPassword')]"
+            },
+            "storageProfile": {
+              "imageReference": {
+                "publisher": "[parameters('imagePublisher')]",
+                "offer": "[parameters('imageOffer')]",
+                "sku": "[parameters('windowsOSVersion')]",
+                "version": "latest"
+              },
+              "osDisk": {
+                "name": "dcOSDisk",
+                "vhd": {
+                  "uri": "[concat('http://', parameters('storageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('vmOSDiskName'), '.vhd')]"
+                },
+                "caching": "ReadWrite",
+                "createOption": "FromImage"
+              },
+              "dataDisks" : [
+                {
+                  "name" : "datadisk1",
+                  "diskSizeGB" : "[parameters('sizeOfDiskInGB')]",
+                  "lun" : 0,
+                  "vhd":{
+                    "Uri" : "[concat('http://',parameters('storageName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/','datadisk1.vhd')]"
+                  },
+                  "createOption":"Empty"
+                  }]
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "properties": {
+                        "primary": true
+                      },
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameApp'))]"
+                    },
+                    {
+                      "properties": {
+                        "primary": false
+                      },
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameMgmt'))]"
+                    }                  ]
                 }
               }
-            }
-          ]
-        }
-      },
-      {
-        "apiVersion": "2015-05-01-preview",
-        "name": "[variables('loadBalancerName')]",
-        "type": "Microsoft.Network/loadBalancers",
-        "location": "[resourceGroup().location]",
-        "properties": {
-          "frontendIPConfigurations": [{
-            "name": "loadBalancerFrontEnd",
-            "properties": {
-              "subnet": {
-                "id": "[variables('subnetRefFrontEnd')]"
-              }
-            }
-            }],
-            "backendAddressPools": [{
-              "name": "loadBalancerBackEnd"
-            }
-          ],
-          "inboundNatRules": [
-            {
-              "name": "HTTP",
-              "properties": {
-                "frontendIPConfiguration": {
-                  "id": "[variables('frontEndIPConfigID')]"
-                },
-                "protocol": "tcp",
-                "frontendPort": 80,
-                "backendPort": 80,
-                "enableFloatingIP": false
-              }
             },
             {
-              "name": "HTTPS",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "name": "[concat(parameters('vmName'),'/', variables('vmExtensionName'))]",
+              "apiVersion": "2015-05-01-preview",
+              "location": "[resourceGroup().location]",
+              "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+              ],
               "properties": {
-                "frontendIPConfiguration": {
-                  "id": "[variables('frontEndIPConfigID')]"
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "1.9",
+                "settings": {
+                  "ModulesUrl": "[parameters('modulesUrl')]",
+                  "SasToken": "",
+                  "ConfigurationFunction": "[parameters('configurationFunction')]",
+                  "Properties": {
+                    "MachineName": "[parameters('vmName')]"
+                  }
                 },
-                "protocol": "tcp",
-                "frontendPort": 81,
-                "backendPort": 81,
-                "enableFloatingIP": false
+                "protectedSettings": null
               }
             }
           ]
         }
-      },
-      {
-        "name": "[parameters('storageName')]",
-        "type": "Microsoft.Storage/storageAccounts",
-        "location": "[resourceGroup().location]",
-        "apiVersion": "2015-05-01-preview",
-        "tags": {
-          "displayName": "Storage"
-        },
-        "properties": {
-          "accountType": "[parameters('storageType')]"
-        }
-      },
-      {
-        "name": "[parameters('vmName')]",
-        "type": "Microsoft.Compute/virtualMachines",
-        "location": "[resourceGroup().location]",
-        "apiVersion": "2015-05-01-preview",
-        "dependsOn": [
-          "[concat('Microsoft.Storage/storageAccounts/', parameters('storageName'))]",
-          "[concat('Microsoft.Network/networkInterfaces/', variables('nicNameApp'))]",
-          "[concat('Microsoft.Network/networkInterfaces/', variables('nicNameMgmt'))]",
-          "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySet'))]"
-        ],
-        "tags": {
-          "displayName": "devweb"
-        },
-        "properties": {
-          "availabilitySet": {
-            "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('availabilitySet'))]"
-          },
-          "hardwareProfile": {
-            "vmSize": "[parameters('vmSize')]"
-          },
-          "osProfile": {
-            "computername": "[parameters('vmName')]",
-            "adminUsername": "[parameters('adminUsername')]",
-            "adminPassword": "[parameters('adminPassword')]"
-          },
-          "storageProfile": {
-            "imageReference": {
-              "publisher": "[parameters('imagePublisher')]",
-              "offer": "[parameters('imageOffer')]",
-              "sku": "[parameters('windowsOSVersion')]",
-              "version": "latest"
-            },
-            "osDisk": {
-              "name": "dcOSDisk",
-              "vhd": {
-                "uri": "[concat('http://', parameters('storageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('vmOSDiskName'), '.vhd')]"
-              },
-              "caching": "ReadWrite",
-              "createOption": "FromImage"
-            },
-            "dataDisks" : [
-            {
-                "name" : "datadisk1",
-                "diskSizeGB" : "[parameters('sizeOfDiskInGB')]",
-                "lun" : 0,
-                "vhd":{
-                    "Uri" : "[concat('http://',parameters('storageName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/','datadisk1.vhd')]"
-                },
-                "createOption":"Empty"
-            }]
-          },
-          "networkProfile": {
-            "networkInterfaces": [
-              {
-                "properties": {
-                  "primary": true
-                },
-                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameApp'))]"
-              },
-              {
-                "properties": {
-                  "primary": false
-                },
-                "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameMgmt'))]"
-              }
-            ]
-          }
-        }
-      },
-      {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(parameters('vmName'),'/', variables('vmExtensionName'))]",
-        "apiVersion": "2015-05-01-preview",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-        ],
-        "properties": {
-          "publisher": "Microsoft.Powershell",
-          "type": "DSC",
-          "typeHandlerVersion": "1.9",
-          "settings": {
-            "ModulesUrl": "[parameters('modulesUrl')]",
-            "SasToken": "",
-            "ConfigurationFunction": "[parameters('configurationFunction')]",
-            "Properties": {
-              "MachineName": "[parameters('vmName')]"
-            }
-          },
-          "protectedSettings": null
-        }
-      },
-      {
-        "type": "Microsoft.Compute/availabilitySets",
-        "name": "[variables('availabilitySet')]",
-        "apiVersion": "2015-05-01-preview",
-        "location": "[resourceGroup().location]",
-        "properties": {
-        }
-      }
-    ]
-  }
