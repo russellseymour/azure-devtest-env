@@ -4,14 +4,12 @@
   "parameters": {
     "devVNETResourceGroup": {
       "type": "string",
-      "defaultValue": "devnet",
       "metadata": {
         "description": "The devVNET resource group."
       }
     },
     "devVNETVirtualNetworkName": {
       "type": "string",
-      "defaultValue": "devnet",
       "metadata": {
         "description": "The devVNET network name."
       }
@@ -22,9 +20,9 @@
         "description": "The app subnet name."
       }
     },
-    "storageName": {
+    "storageAccountName": {
       "type": "string",
-      "defaultValue": "asdevaa"
+      "defaultValue": "[replace(concat(resourceGroup().name,'-sto'),'-','')]"
     },
     "storageType": {
       "type": "string",
@@ -34,10 +32,6 @@
         "Standard_GRS",
         "Standard_ZRS"
       ]
-    },
-    "vmName": {
-      "type": "string",
-      "defaultValue": "asaz-devweb-101"
     },
     "adminUserName": {
       "type": "string",
@@ -91,19 +85,21 @@
   },
   "variables": {
     "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
-    "nicNameMgmt": "networkInterfaceMgmt",
+    "nicNameMgmt": "[concat(resourceGroup().name,'-nic-mgt')]",
     "subnetRefMgmt": "[concat(variables('vnetID'),'/subnets/subnetMgmt')]",
-    "nicNameApp": "networkInterfaceApp",
+
+    "nicNameApp": "[concat(resourceGroup().name,'-nic-int')]",
     "subnetRefApp": "[concat(variables('vnetID'),'/subnets/',parameters('appSubnetName'))]",
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicNameApp'))]",
-    "nicNameFrontEnd": "networkInterfaceFE",
+
     "subnetRefFrontEnd": "[concat(variables('vnetID'),'/subnets/subnetFrontEnd')]",
-    "loadBalancerName": "webLoadBalancer",
+    "loadBalancerName": "[concat(resourceGroup().name,'-wlb')]",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
     "backEndIPConfigID": "[concat(variables('nicId'),'/ipConfigurations/ipconfig1')]",
-    "vmOSDiskName": "osdisk",
-    "vmStorageAccountContainerName": "vhds",
+
+    "vmName": "[concat(resourceGroup().name,'-vm')]",
+    "vmOSDiskName": "[variables('vmName')]",
     "vmExtensionName": "dscExtension"
   },
   "resources": [
@@ -208,7 +204,7 @@
       }
     },
     {
-      "name": "[parameters('storageName')]",
+      "name": "[parameters('storageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-05-01-preview",
@@ -220,12 +216,12 @@
       }
     },
     {
-      "name": "[parameters('vmName')]",
+      "name": "[variables('vmName')]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-05-01-preview",
       "dependsOn": [
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
         "[concat('Microsoft.Network/networkInterfaces/', variables('nicNameApp'))]",
         "[concat('Microsoft.Network/networkInterfaces/', variables('nicNameMgmt'))]"
       ],
@@ -237,7 +233,7 @@
           "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computername": "[parameters('vmName')]",
+          "computername": "[variables('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -251,7 +247,7 @@
           "osDisk": {
             "name": "dcOSDisk",
             "vhd": {
-              "uri": "[concat('http://', parameters('storageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('vmOSDiskName'), '.vhd')]"
+              "uri": "[concat('http://', parameters('storageAccountName'), '.blob.core.windows.net/vhds', '/', variables('vmOSDiskName'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -262,7 +258,7 @@
               "diskSizeGB": "[parameters('sizeOfDiskInGB')]",
               "lun": 0,
               "vhd": {
-                "Uri": "[concat('http://',parameters('storageName'),'.blob.core.windows.net/',variables('vmStorageAccountContainerName'),'/','datadisk1.vhd')]"
+                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds','/','datadisk1.vhd')]"
               },
               "createOption": "Empty"
             }
@@ -288,11 +284,11 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmName'),'/', variables('vmExtensionName'))]",
+      "name": "[concat(variables('vmName'),'/', variables('vmExtensionName'))]",
       "apiVersion": "2015-05-01-preview",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
       ],
       "properties": {
         "publisher": "Microsoft.Powershell",
@@ -303,7 +299,7 @@
           "SasToken": "",
           "ConfigurationFunction": "[parameters('configurationFunction')]",
           "Properties": {
-            "MachineName": "[parameters('vmName')]"
+            "MachineName": "[variables('vmName')]"
           }
         },
         "protectedSettings": null
