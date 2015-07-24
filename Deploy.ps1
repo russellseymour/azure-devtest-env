@@ -9,6 +9,7 @@ $secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
 New-AzureResourceGroup -Name "az-wrk-stn" -Location "North Europe" `
 -TemplateFile "c:\projects\GitHub\azure-devtest-samples\02-az-wrk-stn\azuredeploy.json" `
 -TemplateParameterFile "c:\projects\GitHub\azure-devtest-samples\02-az-wrk-stn\azuredeploy.parameters.json" `
+ -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
 -appSubnetName "subnetFrontEnd" -adminPassword $secPwd  `
 -Verbose -Force  
 
@@ -18,7 +19,7 @@ New-AzureResourceGroup -Name "az-dns-grp" -Location "North Europe" `
  -TemplateFile "c:\projects\GitHub\azure-devtest-samples\03-az-dns-srv\azuredeploy.json" `
  -TemplateParameterFile "c:\projects\GitHub\azure-devtest-samples\03-az-dns-srv\azuredeploy.parameters.json" `
  -adminPassword $secPwd  `
- -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "devnet" `
+ -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
  -Verbose -Force
 
   
