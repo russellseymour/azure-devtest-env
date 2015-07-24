@@ -35,7 +35,7 @@ $secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
 New-AzureResourceGroup -Name "az-dev-101" -Location "North Europe" `
 -TemplateFile "c:\projects\GitHub\azure-devtest-samples\05-az-dev-xxx\azuredeploy.json" `
 -TemplateParameterFile "c:\projects\GitHub\azure-devtest-samples\05-az-dev-xxx\azuredeploy.parameters.json" `
--appSubnetName "subnetdev101" -vmName "az-dev-101" `
+-appSubnetName "subnetdev101"  `
 -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
 -Verbose -Force
