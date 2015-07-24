@@ -81,23 +81,32 @@
       "metadata": {
         "description": "Size of the empty data disk in GB"
       }
+    },
+    "dnsServer01": {
+      "type": "string",
+      "metadata": {
+        "description": "The ip address of the dns server for the .local prefix"
+      }
+    },
+    "dnsServer02": {
+      "type": "string",
+      "metadata": {
+        "description": "The ip address of the dns server for the .local prefix"
+      }
     }
   },
   "variables": {
     "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
     "nicNameMgmt": "[concat(resourceGroup().name,'-nic-mgt')]",
     "subnetRefMgmt": "[concat(variables('vnetID'),'/subnets/subnetMgmt')]",
-
     "nicNameApp": "[concat(resourceGroup().name,'-nic-int')]",
     "subnetRefApp": "[concat(variables('vnetID'),'/subnets/',parameters('appSubnetName'))]",
     "nicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicNameApp'))]",
-
     "subnetRefFrontEnd": "[concat(variables('vnetID'),'/subnets/subnetFrontEnd')]",
     "loadBalancerName": "[concat(resourceGroup().name,'-wlb')]",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
     "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
     "backEndIPConfigID": "[concat(variables('nicId'),'/ipConfigurations/ipconfig1')]",
-
     "vmName": "[concat(resourceGroup().name,'-vm')]",
     "vmOSDiskName": "[variables('vmName')]",
     "vmExtensionName": "dscExtension"
@@ -127,7 +136,13 @@
               ]
             }
           }
-        ]
+        ],
+        "dnsSettings": {
+          "dnsServers": [
+            "[parameters('dnsServer01')]",
+            "[parameters('dnsServer02')]"
+          ]
+        }
       }
     },
     {

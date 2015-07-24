@@ -22,7 +22,6 @@ New-AzureResourceGroup -Name "az-dns-grp" -Location "North Europe" `
  -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
  -Verbose -Force
 
-
 #Create the management resource group
 New-AzureResourceGroup -Name "az-mgt-grp" -Location "North Europe" `
  -TemplateFile "c:\projects\GitHub\azure-devtest-samples\04-az-mgmt-grp\azuredeploy.json" `
@@ -37,5 +36,6 @@ New-AzureResourceGroup -Name "az-dev-101" -Location "North Europe" `
 -TemplateParameterFile "c:\projects\GitHub\azure-devtest-samples\05-az-dev-xxx\azuredeploy.parameters.json" `
 -appSubnetName "subnetdev101"  `
 -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
+-dnsServer01 "10.208.43.4" -dnsServer02 "10.208.43.5" `
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
 -Verbose -Force
