@@ -4,14 +4,12 @@
   "parameters": {
     "devVNETResourceGroup": {
       "type": "string",
-      "defaultValue": "devVNET",
       "metadata": {
         "description": "The devVNET resource group."
       }
     },
     "devVNETVirtualNetworkName": {
       "type": "string",
-      "defaultValue": "devVNET",
       "metadata": {
         "description": "The devVNET network name."
       }

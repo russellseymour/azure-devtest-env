@@ -25,28 +25,28 @@
     },
     "subnetPrefix1": {
       "type": "string",
-      "defaultValue": "10.208.0.0/29",
+      "defaultValue": "10.208.2.0/29",
       "metadata" : {
         "description" : "Dev1 subnet prefix"
       }
     },
     "subnetPrefix2": {
       "type": "string",
-      "defaultValue": "10.208.0.8/29",
+      "defaultValue": "10.208.2.8/29",
       "metadata" : {
         "description" : "Dev2 subnet prefix"
       }
     },
     "subnetPrefix3": {
       "type": "string",
-      "defaultValue": "10.208.0.16/29",
+      "defaultValue": "10.208.2.16/29",
       "metadata" : {
         "description" : "Dev3 subnet prefix"
       }
     },
-    "subnetPrefixGw": {
+    "subnetPrefixGateway": {
       "type": "string",
-      "defaultValue": "10.208.220.0/24",
+      "defaultValue": "10.208.1.0/24",
       "metadata" : {
         "description" : "Gateway subnet prefix"
       }
@@ -73,10 +73,10 @@
     "subnetName1" : "subnetdev101",
     "subnetName2" : "subnetdev102",
     "subnetName3" : "subnetdev103",
-    "subnetNameGw" : "GatewaySubnet",
+    "subnetNameGateway" : "GatewaySubnet",
     
     "vnetID":"[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
-    "subnetRefGw" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameGw'))]",
+    "subnetRefGateway" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameGateway'))]",
     "subnetRefMgmt" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameMgmt'))]",
     "subnetRefFrontEnd" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameFrontEnd'))]",
     "subnetRef1" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName1'))]",
@@ -212,7 +212,13 @@
                 "properties": {
                   "addressPrefix": "[parameters('subnetPrefixFrontEnd')]"
                 }
-              }              
+              },
+              {
+                "name": "[variables('subnetNameGateway')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetPrefixGateway')]"
+                }
+              }             
             ]
           }
         }

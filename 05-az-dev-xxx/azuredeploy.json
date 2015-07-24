@@ -4,7 +4,7 @@
   "parameters": {
     "devVNETResourceGroup": {
       "type": "string",
-      "defaultValue": "devVNET",
+      "defaultValue": "devnet",
       "metadata": {
         "description": "The devVNET resource group."
       }

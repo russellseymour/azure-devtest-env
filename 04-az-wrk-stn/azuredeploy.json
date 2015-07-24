@@ -4,7 +4,7 @@
   "parameters": {
     "newStorageAccountName": {
       "type": "string",
-      "defaultValue": "astestvm01",
+      "defaultValue": "[resourceGroup().name]",
       "metadata": {
         "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
       }
@@ -24,7 +24,7 @@
     },
     "dnsNameForPublicIP": {
       "type": "string",
-      "defaultValue": "testvm",
+      "defaultValue": "resourceGroup().name",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
@@ -43,7 +43,7 @@
     },
     "devVNETResourceGroup": {
       "type": "string",
-      "defaultValue": "devVNET",
+      "defaultValue": "devnet",
       "metadata": {
         "description": "The devVNET resource group."
       }

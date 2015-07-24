@@ -1,46 +1,39 @@
-New-AzureResourceGroup -Name devVNET -Location "North Europe" `
- -TemplateFile "c:\projects\Azure\devVNET\azuredeploy.json" `
- -TemplateParameterFile "c:\projects\Azure\devVNET\azuredeploy.parameters.json" `
+#Create the developer network and associated resource group
+New-AzureResourceGroup -Name "az-dev-net" -Location "North Europe" `
+ -TemplateFile "C:\Projects\GitHub\azure-devtest-samples\01-az-dev-net\azuredeploy.json" `
+ -TemplateParameterFile "C:\Projects\GitHub\azure-devtest-samples\01-az-dev-net\azuredeploy.parameters.json" `
  -Verbose -Force
 
-New-AzureResourceGroup -Name mgmt -Location "North Europe" `
- -TemplateFile "c:\projects\Azure\mgmt\azuredeploy.json" `Get
- -TemplateParameterFile "c:\projects\Azure\mgmt\azuredeploy.parameters.json" `
+#Create the dns server resource group
+New-AzureResourceGroup -Name "az-dns-grp" -Location "North Europe" `
+ -TemplateFile "c:\projects\GitHub\Samples\02-az-dns-srv\azuredeploy.json" `
+ -TemplateParameterFile "c:\projects\GitHub\Samples\02-az-dns-srv\azuredeploy.parameters.json" `
+ -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "devnet" `
+ -Verbose -Force
+  
+#Create the management resource group
+New-AzureResourceGroup -Name "az-mgmt-grp" -Location "North Europe" `
+ -TemplateFile "c:\projects\GitHub\Samples\03-az-mgmt-grp\azuredeploy.json" `
+ -TemplateParameterFile "c:\projects\GitHub\Samples\03-az-mgmt-grp\azuredeploy.parameters.json" `
  -Verbose -Force
 
+#Create a workstation to remote in and test stuff 
 $secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
-New-AzureResourceGroup -Name "as-dev-101" -Location "North Europe" `
--TemplateFile "c:\projects\GitHub\Samples\app\azuredeploy.json" `
--TemplateParameterFile "c:\projects\GitHub\Samples\app\azuredeploy.parameters.json" `
+New-AzureResourceGroup -Name "az-wrk-stn" -Location "North Europe" `
+-TemplateFile "c:\projects\GitHub\Samples\04-az-wrk-stn\azuredeploy.json" `
+-TemplateParameterFile "c:\projects\GitHub\Samples\04-az-wrk-stn\azuredeploy.parameters.json" `
+-appSubnetName "subnetFrontEnd" -adminPassword $secPwd  `
+-Verbose -Force  
+
+#Creat the developer environment resource group
+$secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
+New-AzureResourceGroup -Name "az-dev-101" -Location "North Europe" `
+-TemplateFile "c:\projects\GitHub\Samples\05-az-dev-xxx\azuredeploy.json" `
+-TemplateParameterFile "c:\projects\GitHub\Samples\05-az-dev-xxx\azuredeploy.parameters.json" `
 -appSubnetName "subnetdev101" -storageName "asdev101" -vmName "asaz-devweb-101" `
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
 -Verbose -Force  
 
-$secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
-New-AzureResourceGroup -Name "testvm" -Location "North Europe" `
--TemplateFile "c:\projects\GitHub\Samples\testvm\azuredeploy.json" `
--TemplateParameterFile "c:\projects\GitHub\Samples\testvm\azuredeploy.parameters.json" `
--appSubnetName "subnetFrontEnd" -adminPassword $secPwd  `
--Verbose -Force  
 
-New-AzureResourceGroup -Name app2 -Location "North Europe" `
- -TemplateFile "c:\projects\Azure\app\azuredeploy.json" `
- -TemplateParameterFile "c:\projects\Azure\app\azuredeploy.parameters.json" `
- -Verbose -Force -appSubnetName "subnet2"
 
-New-AzureResourceGroup -Name app3 -Location "North Europe" `
- -TemplateFile "c:\projects\Azure\app\azuredeploy.json" `
- -TemplateParameterFile "c:\projects\Azure\app\azuredeploy.parameters.json" `
- -appSubnetName "subnet3" -Verbose -Force `
 
-$secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
- New-AzureResourceGroup -Name pctst04 -Location "North Europe" `
-  -TemplateFile "c:\projects\Azure\pubip\azuredeploy.json" `
-  -TemplateParameterFile "c:\projects\Azure\pubip\azuredeploy.parameters.json" `
-  -Verbose -Force -adminPassword $secPwd
-
-$secPwd = ConvertTo-SecureString "Corp123!" -AsPlainText -Force
-New-AzureResourceGroup -Name pcqarmdemo -Location "North Europe" `
-    -TemplateFile "c:\projects\Azure\vnettovnet\azuredeploy.json" `
-    -TemplateParameterFile "c:\projects\Azure\vnettovnet\azuredeploy.parameters.json" `
-    -Verbose -Force -adminPassword $secPwd -prefixparam pcqarmdemo
