@@ -13,20 +13,42 @@
       "metadata": {
         "description": "The devVNET network name."
       }
+    },
+    "vmTypes": {
+      "type": "array",
+      "defaultValue": [
+        "dc-01",
+        "dc-02",
+        "chef",
+        "wsus",
+        "es-01",
+        "es-02",
+        "fs",
+        "mon",
+        "prov"
+      ]
+    },
+    "count": {
+      "type": "int",
+      "defaultValue": 9
     }
   },
-  "variables" : {
-    "vnetID" : "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
-    "subnetNameMgmt" : "subnetMgmt",
-    "nicNameMgmt" : "networkInterfaceMgmt",
-    "subnetRefMgmt" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameMgmt'))]"
+  "variables": {
+    "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
+    "subnetNameMgmt": "subnetMgmt",
+    "nicNameMgmt": "[concat(resourceGroup().name,'-nic-')]",
+    "subnetRefMgmt": "[concat(variables('vnetID'),'/subnets/',variables('subnetNameMgmt'))]"
   },
   "resources": [
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nicNameMgmt')]",
+      "name": "[concat(variables('nicNameMgmt'), parameters('vmTypes')[copyIndex()])]",
       "location": "[resourceGroup().location]",
+      "copy": {
+         "name": "niccopy",
+         "count": "[parameters('count')]"
+      },
       "properties": {
         "ipConfigurations": [
           {

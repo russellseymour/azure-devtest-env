@@ -50,10 +50,10 @@
   "variables": {
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "nicName": "[concat(resourceGroup().name,'-nic-00')]",
+    "nicName": "[concat(resourceGroup().name,'-nic-0')]",
     "subnetName": "SubnetDns",
     "storageAccountType": "Standard_LRS",
-    "vmName": "az-dns-00",
+    "vmName": "az-dns-vm-0",
     "OSDiskName": "[variables('vmName')]",
     "vmSize": "Standard_A1",
     "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
