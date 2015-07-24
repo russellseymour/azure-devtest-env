@@ -51,6 +51,13 @@
         "description" : "Gateway subnet prefix"
       }
     },
+    "subnetPrefixDns": {
+      "type": "string",
+      "defaultValue": "10.208.43.0/29",
+      "metadata" : {
+        "description" : "Gateway subnet prefix"
+      }
+    },
     "mgmtNSGName": {
       "type": "string",
       "defaultValue": "mgmtNSG",
@@ -67,21 +74,23 @@
     }
   },
   "variables" : {
-    "virtualNetworkName" : "devnet",
+    "virtualNetworkName" : "[resourceGroup().name]",
     "subnetNameMgmt" : "subnetMgmt",
     "subnetNameFrontEnd" : "subnetFrontEnd",
     "subnetName1" : "subnetdev101",
     "subnetName2" : "subnetdev102",
     "subnetName3" : "subnetdev103",
     "subnetNameGateway" : "GatewaySubnet",
-    
+    "subnetNameDns" : "subnetDns",
+
     "vnetID":"[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+    "subnetRefDns" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameDns'))]",
     "subnetRefGateway" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameGateway'))]",
     "subnetRefMgmt" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameMgmt'))]",
     "subnetRefFrontEnd" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameFrontEnd'))]",
     "subnetRef1" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName1'))]",
     "subnetRef2" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName2'))]",
-    "subnetRef3" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName3'))]",
+    "subnetRef3" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName3'))]"
   },
   "resources": [
     {
@@ -173,14 +182,14 @@
         "properties": {
           "addressSpace": {
             "addressPrefixes": [
-              "[parameters('addressPrefix')]",
+              "[parameters('addressPrefix')]"
               ]
             },
             "subnets": [
               {
                 "name": "[variables('subnetName1')]",
                 "properties": {
-                  "addressPrefix": "[parameters('subnetPrefix1')]"                  
+                  "addressPrefix": "[parameters('subnetPrefix1')]"
                 }
               },
               {
@@ -218,7 +227,13 @@
                 "properties": {
                   "addressPrefix": "[parameters('subnetPrefixGateway')]"
                 }
-              }             
+              },
+              {
+                "name": "[variables('subnetNameDns')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetPrefixDns')]"
+                }
+              }
             ]
           }
         }

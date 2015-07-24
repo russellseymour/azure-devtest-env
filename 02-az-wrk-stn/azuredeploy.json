@@ -4,7 +4,7 @@
   "parameters": {
     "newStorageAccountName": {
       "type": "string",
-      "defaultValue": "[resourceGroup().name]",
+      "defaultValue": "[concat(resourceGroup().name,'-sto')]",
       "metadata": {
         "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
       }
@@ -24,7 +24,7 @@
     },
     "dnsNameForPublicIP": {
       "type": "string",
-      "defaultValue": "resourceGroup().name",
+      "defaultValue": "[concat(resourceGroup().name,'-pip')]",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
@@ -43,14 +43,12 @@
     },
     "devVNETResourceGroup": {
       "type": "string",
-      "defaultValue": "devnet",
       "metadata": {
         "description": "The devVNET resource group."
       }
     },
     "devVNETVirtualNetworkName": {
       "type": "string",
-      "defaultValue": "devnet",
       "metadata": {
         "description": "The devVNET network name."
       }
@@ -66,13 +64,13 @@
     "location": "North Europe",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "OSDiskName": "osdiskforwindowssimple",
-    "nicName": "myVMNic",
+    "OSDiskName": "osdisk",
+    "nicName": "[concat(resourceGroup().name,'-nic')]",
     "storageAccountType": "Standard_LRS",
-    "publicIPAddressName": "myPublicIP",
+    "publicIPAddressName": "[concat(resourceGroup().name,'-pip')]",
     "publicIPAddressType": "Dynamic",
     "vmStorageAccountContainerName": "vhds",
-    "vmName": "testvm",
+    "vmName": "[concat(resourceGroup().name,'-vm')]",
     "vmSize": "Standard_A2",
 
     "vnetID" : "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
