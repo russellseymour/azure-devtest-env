@@ -52,7 +52,7 @@
     "dataDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-e-0')]",
     "vmSettings": {
       "name": "[concat(parameters('commonSettings').prefix,'-w-0')]",
-      "numberofVms": "2",
+      "numberofVms": 2,
       "size": "[parameters('vmSize')]",
       "nic": {
         "mgmt": {
