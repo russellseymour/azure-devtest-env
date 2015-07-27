@@ -118,13 +118,7 @@
               ]
             }
           }
-        ],
-        "dnsSettings": {
-          "dnsServers": [
-            "variables('vmSettings').nic.app.dns.server1",
-            "variables('vmSettings').nic.app.dns.server2"
-          ]
-        }
+        ]
       }
     },
     {

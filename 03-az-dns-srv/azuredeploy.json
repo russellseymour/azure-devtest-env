@@ -51,7 +51,7 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "nicName": "[concat(resourceGroup().name,'-nic-0')]",
-    "subnetName": "SubnetDns",
+    "subnetName": "DnsSubnet",
     "storageAccountType": "Standard_LRS",
     "vmName": "az-dns-vm-0",
     "OSDiskName": "[variables('vmName')]",

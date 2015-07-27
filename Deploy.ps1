@@ -35,6 +35,6 @@ New-AzureResourceGroup -Name "az-dev-101" -Location "North Europe" `
 -TemplateFile ".\05-az-dev-xxx\azuredeploy.json" `
 -TemplateParameterFile ".\05-az-dev-xxx\azuredeploy.parameters.json" `
 -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
--dnsServer01 "10.208.43.4" -dnsServer02 "10.208.43.5" `
+-dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
 -Verbose -Force
