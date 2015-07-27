@@ -143,6 +143,9 @@
           "networkSettings": {
             "value": "[variables('networkSettings')]"
           },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
           "adminPassword" : {
             "value": "[parameters('adminPassword')]"
           },
