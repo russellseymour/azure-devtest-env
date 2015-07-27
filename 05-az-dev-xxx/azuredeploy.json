@@ -14,12 +14,6 @@
         "description": "The devVNET network name."
       }
     },
-    "appSubnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "The app subnet name."
-      }
-    },
     "storageAccountName": {
       "type": "string",
       "defaultValue": "[replace(concat(resourceGroup().name,'-sto'),'-','')]"
@@ -40,48 +34,6 @@
     "adminPassword": {
       "type": "securestring"
     },
-    "windowsOSVersion": {
-      "type": "string",
-      "defaultValue": "2012-R2-Datacenter",
-      "allowedValues": [
-        "2008-R2-SP1",
-        "2012-Datacenter",
-        "2012-R2-Datacenter",
-        "Windows-Server-Technical-Preview"
-      ]
-    },
-    "imagePublisher": {
-      "type": "string",
-      "defaultValue": "MicrosoftWindowsServer"
-    },
-    "imageOffer": {
-      "type": "string",
-      "defaultValue": "WindowsServer"
-    },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_D2"
-    },
-    "modulesUrl": {
-      "type": "string",
-      "defaultValue": "https://github.com/Azure/azure-quickstart-templates/raw/master/dsc-extension-iis-server-windows-vm/ContosoWebsite.ps1.zip",
-      "metadata": {
-        "description": "URL for the DSC configuration module. NOTE: Can be a Github url(raw) to the zip file"
-      }
-    },
-    "configurationFunction": {
-      "type": "string",
-      "defaultValue": "ContosoWebsite.ps1\\ContosoWebsite",
-      "metadata": {
-        "description": "DSC configuration function to call"
-      }
-    },
-    "sizeOfDiskInGB": {
-      "type": "string",
-      "metadata": {
-        "description": "Size of the empty data disk in GB"
-      }
-    },
     "dnsServer01": {
       "type": "string",
       "metadata": {
@@ -93,231 +45,95 @@
       "metadata": {
         "description": "The ip address of the dns server for the .local prefix"
       }
+    },
+    "prefix" :{
+      "type":"string",
+      "defaultValue" : "[resourceGroup().name]",
+      "metadata" : {
+        "description" : "A prefix used for all resources in this resource group"
+      }
     }
   },
   "variables": {
-    "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
-    "nicNameMgmt": "[concat(resourceGroup().name,'-nic-mgt')]",
-    "subnetRefMgmt": "[concat(variables('vnetID'),'/subnets/subnetMgmt')]",
-    "nicNameApp": "[concat(resourceGroup().name,'-nic-int')]",
-    "subnetRefApp": "[concat(variables('vnetID'),'/subnets/',parameters('appSubnetName'))]",
-    "nicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicNameApp'))]",
-    "subnetRefFrontEnd": "[concat(variables('vnetID'),'/subnets/subnetFrontEnd')]",
-    "loadBalancerName": "[concat(resourceGroup().name,'-wlb')]",
-    "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName'))]",
-    "frontEndIPConfigID": "[concat(variables('lbID'),'/frontendIPConfigurations/loadBalancerFrontEnd')]",
-    "backEndIPConfigID": "[concat(variables('nicId'),'/ipConfigurations/ipconfig1')]",
-    "vmName": "[concat(resourceGroup().name,'-vm')]",
-    "vmOSDiskName": "[variables('vmName')]",
-    "vmExtensionName": "dscExtension"
+    "commonSettings": {
+      "location": "resourceGroup().location",
+      "prefix": "[parameters('prefix')]",
+      "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]"
+    },
+
+    "storageSettings": {
+      "storageAccountName": "[parameters('storageAccountName')]",
+      "storageType": "[parameters('storageType')]"
+    },
+    "networkSettings": {
+      "subnetRef": {
+        "app": "[concat(variables('commonSettings').vnetID,'/subnets/AppSubnet')]",
+        "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]",
+        "frontEnd": "[concat(variables('commonSettings').vnetID,'/subnets/FrontEndSubnet')]"
+      },
+      "dns": {
+        "server1": "[parameters('dnsServer01')]",
+        "server2": "[parameters('dnsServer02')]"
+      }
+    },
+    "machineSettings": {
+      "adminUserName": "[parameters('adminUserName')]",
+      "os": {
+        "imagePublisher": "MicrosoftWindowsServer",
+        "imageOffer": "WindowsServer",
+        "imageSku": "2012-R2-Datacenter",
+        "version": "latest"
+      }
+    },
+
+    "sharedTemplateUrl": "",
+    "webvmTemplateUrl":""
   },
   "resources": [
     {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nicNameApp')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
-      ],
+      "name": "shared-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
       "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnetRefApp')]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[concat(variables('lbID'), '/backendAddressPools/loadBalancerBackEnd')]"
-                }
-              ]
-            }
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('sharedTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
           }
-        ],
-        "dnsSettings": {
-          "dnsServers": [
-            "[parameters('dnsServer01')]",
-            "[parameters('dnsServer02')]"
-          ]
         }
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nicNameMgmt')]",
-      "location": "[resourceGroup().location]",
+      "name": "webvm-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
       "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnetRefMgmt')]"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "name": "[variables('loadBalancerName')]",
-      "type": "Microsoft.Network/loadBalancers",
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "loadBalancerFrontEnd",
-            "properties": {
-              "subnet": {
-                "id": "[variables('subnetRefFrontEnd')]"
-              }
-            }
-          }
-        ],
-        "backendAddressPools": [
-          {
-            "name": "loadBalancerBackEnd"
-          }
-        ],
-        "loadBalancingRules": [
-          {
-            "properties": {
-              "frontendIPConfiguration": {
-                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
-              },
-              "backendAddressPool": {
-                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
-              },
-              "probe": {
-                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/probes/lbprobe')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 80,
-              "backendPort": 80,
-              "idleTimeoutInMinutes": 15
-            },
-            "Name": "lbrule"
-          }
-        ],
-        "probes": [
-          {
-            "properties": {
-              "protocol": "Tcp",
-              "port": 80,
-              "intervalInSeconds": 15,
-              "numberOfProbes": 2
-            },
-            "name": "lbprobe"
-          }
-        ]
-      }
-    },
-    {
-      "name": "[parameters('storageAccountName')]",
-      "type": "Microsoft.Storage/storageAccounts",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2015-05-01-preview",
-      "tags": {
-        "displayName": "Storage"
-      },
-      "properties": {
-        "accountType": "[parameters('storageType')]"
-      }
-    },
-    {
-      "name": "[variables('vmName')]",
-      "type": "Microsoft.Compute/virtualMachines",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2015-05-01-preview",
-      "dependsOn": [
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('nicNameApp'))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('nicNameMgmt'))]"
-      ],
-      "tags": {
-        "displayName": "devweb"
-      },
-      "properties": {
-        "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('webvmTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
         },
-        "osProfile": {
-          "computername": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[parameters('imagePublisher')]",
-            "offer": "[parameters('imageOffer')]",
-            "sku": "[parameters('windowsOSVersion')]",
-            "version": "latest"
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
           },
-          "osDisk": {
-            "name": "dcOSDisk",
-            "vhd": {
-              "uri": "[concat('http://', parameters('storageAccountName'), '.blob.core.windows.net/vhds', '/', variables('vmOSDiskName'), '.vhd')]"
-            },
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
           },
-          "dataDisks": [
-            {
-              "name": "datadisk1",
-              "diskSizeGB": "[parameters('sizeOfDiskInGB')]",
-              "lun": 0,
-              "vhd": {
-                "Uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds','/','datadisk1.vhd')]"
-              },
-              "createOption": "Empty"
-            }
-          ]
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "properties": {
-                "primary": true
-              },
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameApp'))]"
-            },
-            {
-              "properties": {
-                "primary": false
-              },
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicNameMgmt'))]"
-            }
-          ]
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          }
         }
-      }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('vmName'),'/', variables('vmExtensionName'))]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.Powershell",
-        "type": "DSC",
-        "typeHandlerVersion": "1.9",
-        "settings": {
-          "ModulesUrl": "[parameters('modulesUrl')]",
-          "SasToken": "",
-          "ConfigurationFunction": "[parameters('configurationFunction')]",
-          "Properties": {
-            "MachineName": "[variables('vmName')]"
-          }
-        },
-        "protectedSettings": null
       }
     }
   ]

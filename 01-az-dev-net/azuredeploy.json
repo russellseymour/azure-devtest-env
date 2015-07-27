@@ -23,25 +23,11 @@
         "description" : "Subnet prefix"
       }
     },
-    "subnetPrefix1": {
+    "subnetPrefixApp": {
       "type": "string",
-      "defaultValue": "10.208.2.0/29",
+      "defaultValue": "10.208.2.0/21",
       "metadata" : {
-        "description" : "Dev1 subnet prefix"
-      }
-    },
-    "subnetPrefix2": {
-      "type": "string",
-      "defaultValue": "10.208.2.8/29",
-      "metadata" : {
-        "description" : "Dev2 subnet prefix"
-      }
-    },
-    "subnetPrefix3": {
-      "type": "string",
-      "defaultValue": "10.208.2.16/29",
-      "metadata" : {
-        "description" : "Dev3 subnet prefix"
+        "description" : "App subnet prefix"
       }
     },
     "subnetPrefixGateway": {
@@ -75,22 +61,18 @@
   },
   "variables" : {
     "virtualNetworkName" : "[resourceGroup().name]",
-    "subnetNameMgmt" : "subnetMgmt",
-    "subnetNameFrontEnd" : "subnetFrontEnd",
-    "subnetName1" : "subnetdev101",
-    "subnetName2" : "subnetdev102",
-    "subnetName3" : "subnetdev103",
+    "subnetNameMgmt" : "MgmtSubnet",
+    "subnetNameFrontEnd" : "FrontEndSubnet",
+    "subnetNameApp" : "AppSubnet",
     "subnetNameGateway" : "GatewaySubnet",
-    "subnetNameDns" : "subnetDns",
+    "subnetNameDns" : "DnsSubnet",
 
     "vnetID":"[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
     "subnetRefDns" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameDns'))]",
     "subnetRefGateway" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameGateway'))]",
     "subnetRefMgmt" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameMgmt'))]",
     "subnetRefFrontEnd" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameFrontEnd'))]",
-    "subnetRef1" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName1'))]",
-    "subnetRef2" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName2'))]",
-    "subnetRef3" : "[concat(variables('vnetID'),'/subnets/',variables('subnetName3'))]"
+    "subnetRefApp" : "[concat(variables('vnetID'),'/subnets/',variables('subnetNameApp'))]"
   },
   "resources": [
     {
@@ -187,27 +169,9 @@
             },
             "subnets": [
               {
-                "name": "[variables('subnetName1')]",
+                "name": "[variables('subnetNameApp')]",
                 "properties": {
-                  "addressPrefix": "[parameters('subnetPrefix1')]"
-                }
-              },
-              {
-                "name": "[variables('subnetName2')]",
-                "properties": {
-                  "addressPrefix": "[parameters('subnetPrefix2')]",
-                  "networkSecurityGroup" : {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('appNSGName'))]"
-                  }
-                }
-              },
-              {
-                "name": "[variables('subnetName3')]",
-                "properties": {
-                  "addressPrefix": "[parameters('subnetPrefix3')]",
-                  "networkSecurityGroup" : {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('appNSGName'))]"
-                  }
+                  "addressPrefix": "[parameters('subnetPrefixApp')]"
                 }
               },
               {
