@@ -48,7 +48,8 @@
   },
   "variables": {
     "loadBalancerName" : "[concat(parameters('commonSettings').prefix,'-wlb')]",
-
+    "systemDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-c-0')]",
+    "dataDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-e-0')]",
     "vmSettings": {
       "name": "[concat(parameters('commonSettings').prefix,'-vm-web-0')]",
       "numberofVms": "2",
@@ -81,13 +82,13 @@
             "sku": "[parameters('machineSettings').os.imageSku]",
             "version": "[parameters('machineSettings').os.version]"
           },
-          "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName '.blob.core.windows.net/vhds/', variables('vmSettings').systemdisk.name)]"
+          "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName '.blob.core.windows.net/vhds/', variables('systemDiskName'))]"
         },
         "datadisk": {
-          "name": "[concat(parameters('commonSettings').prefix,'-vm-web-e-0')]",
+          "name": "variables('dataDiskName')",
           "size": "[parameters('sizeOfDiskInGB')]",
           "lun": 0,
-          "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName '.blob.core.windows.net/vhds/', variables('vmSettings').datadisk.name)]"
+          "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName '.blob.core.windows.net/vhds/', variables('dataDiskName'))]"
         }
       }
     }
