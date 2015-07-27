@@ -214,8 +214,8 @@
         "count": "[variables('vmSettings').numberofVms]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', concat(variables('vmSettings').nic.app.name,copyIndex(1))]",
-        "[concat('Microsoft.Network/networkInterfaces/', concat(variables('vmSettings').nic.mgmt.name,copyIndex(1))]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.app.name,copyIndex(1))]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]"
       ],
       "tags": {
         "displayName": "devweb"
