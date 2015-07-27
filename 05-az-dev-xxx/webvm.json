@@ -256,13 +256,13 @@
               "properties": {
                 "primary": true
               },
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmSettings').nic.app.name, copyIndex(1))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.app.name, copyIndex(1)))]"
             },
             {
               "properties": {
                 "primary": false
               },
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmSettings').nic.mgmt.name, copyIndex(1))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.mgmt.name, copyIndex(1)))]"
             }
           ]
         }
