@@ -69,7 +69,7 @@
   },
   "variables": {
     "commonSettings": {
-      "location": "resourceGroup().location",
+      "location": "[resourceGroup().location]",
       "prefix": "[parameters('prefix')]",
       "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]"
     },

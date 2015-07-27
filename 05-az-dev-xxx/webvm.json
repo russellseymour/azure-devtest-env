@@ -47,20 +47,20 @@
     }
   },
   "variables": {
+    "loadBalancerName" : "[concat(parameters('commonSettings').prefix,'-wlb')]",
+    "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName')))]",
     "loadBalancerSettings": {
-      "name": "[concat(parameters('commonSettings').prefix,'-wlb')]",
-      "id": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerSettings').name))]",
       "frontEnd": {
         "name": "loadBalancerFrontEnd",
         "subnetRef": "[parameters('networkSettings').subnetRef.frontEnd]",
-        "id": "[concat(variables(loadBalancerSettings).id, '/frontendIpConfigurations/loadBalancerFrontEnd')]"
+        "id": "[concat(variables('lbID'), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
       },
       "backEnd": {
         "name": "loadBalancerBackEnd",
-        "pool": "[concat(variables(loadBalancerSettings).id), '/backendAddressPools/loadBalancerBackEnd')]"
+        "pool": "[concat(variables('lbID')), '/backendAddressPools/loadBalancerBackEnd')]"
       },
       "probe": {
-        "id": "[concatvariables(loadBalancerSettings).id), '/probes/lbprobe')]"
+        "id": "[concatvariables('lbID')), '/probes/lbprobe')]"
       }
     },
     "vmSettings": {
@@ -76,12 +76,12 @@
           "name": "[concat(parameters('commonSettings').prefix,'-nic-app-0')]",
           "subnetRef": "[parameters('networkSettings').subnetRef.app]",
           "dns": {
-            "server1": "parameters(networkSettings).dns.server1",
-            "server2": "parameters(networkSettings).dns.server2"
+            "server1": "parameters('networkSettings').dns.server1",
+            "server2": "parameters('networkSettings').dns.server2"
           },
           "lb": {
             "name": "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]",
-            "backEndPool": "[variables(loadBalancerSettings).backEnd.pool]"
+            "backEndPool": "[variables('loadBalancerSettings').backEnd.pool]"
           }
         }
       },
