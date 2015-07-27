@@ -65,10 +65,6 @@
           "dns": {
             "server1": "parameters('networkSettings').dns.server1",
             "server2": "parameters('networkSettings').dns.server2"
-          },
-          "lb": {
-            "name": "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]",
-            "backEndPool": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
           }
         }
       },
@@ -100,7 +96,7 @@
       "name": "[concat(variables('vmSettings').nic.app.name, copyIndex(1))]",
       "location": "[parameters('commonSettings').location]",
       "dependsOn": [
-        "[variables('vmSettings').nic.app.lb.name)]"
+          "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
       ],
       "copy": {
         "name": "appNics",
@@ -117,7 +113,7 @@
               },
               "loadBalancerBackendAddressPools": [
                 {
-                  "id": "[variables('vmSettings').nic.app.lb.backEndPool]"
+                  "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
                 }
               ]
             }
