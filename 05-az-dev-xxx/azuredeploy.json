@@ -16,7 +16,7 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "[replace(concat(resourceGroup().name,'-sto'),'-','')]"
+      "defaultValue": "[replace(concat(resourceGroup().name,'sto'),'-','')]"
     },
     "storageType": {
       "type": "string",
@@ -52,6 +52,19 @@
       "metadata" : {
         "description" : "A prefix used for all resources in this resource group"
       }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2",
+      "metadata": {
+        "description": "Type of VM. Something that supports atleast 2 nics is required."
+      }
+    },
+    "sizeOfDiskInGB": {
+      "type": "string",
+      "metadata": {
+        "description": "Size of the empty data disk in GB"
+      }
     }
   },
   "variables": {
@@ -86,8 +99,8 @@
       }
     },
 
-    "sharedTemplateUrl": "",
-    "webvmTemplateUrl":""
+    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-dev-xxx/sharedresources.json",
+    "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-dev-xxx/webvm.json"
   },
   "resources": [
     {
@@ -132,6 +145,12 @@
           },
           "adminPassword" : {
             "value": "[parameters('adminPassword')]"
+          },
+          "sizeOfDiskInGB" : {
+            "value" : "[parameters('sizeOfDiskInGB')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
           }
         }
       }

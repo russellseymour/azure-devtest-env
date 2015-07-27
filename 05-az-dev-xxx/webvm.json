@@ -4,7 +4,10 @@
   "parameters": {
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_D2"
+      "defaultValue": "Standard_D2",
+      "metadata": {
+        "description": "Type of VM. Something that supports atleast 2 nics is required."
+      }
     },
     "sizeOfDiskInGB": {
       "type": "string",
