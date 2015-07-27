@@ -220,7 +220,7 @@
         },
         "osProfile": {
           "computername": "[concat(variables('vmSettings').name, copyIndex(1))]",
-          "adminUsername": "[parameters('machineSettings').adminUsername]",
+          "adminUsername": "[parameters('machineSettings').adminUserName]",
           "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
