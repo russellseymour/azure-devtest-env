@@ -48,21 +48,7 @@
   },
   "variables": {
     "loadBalancerName" : "[concat(parameters('commonSettings').prefix,'-wlb')]",
-    "lbID": "[resourceId('Microsoft.Network/loadBalancers',variables('loadBalancerName')))]",
-    "loadBalancerSettings": {
-      "frontEnd": {
-        "name": "loadBalancerFrontEnd",
-        "subnetRef": "[parameters('networkSettings').subnetRef.frontEnd]",
-        "id": "[concat(variables('lbID'), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
-      },
-      "backEnd": {
-        "name": "loadBalancerBackEnd",
-        "pool": "[concat(variables('lbID')), '/backendAddressPools/loadBalancerBackEnd')]"
-      },
-      "probe": {
-        "id": "[concatvariables('lbID')), '/probes/lbprobe')]"
-      }
-    },
+
     "vmSettings": {
       "name": "[concat(parameters('commonSettings').prefix,'-vm-web-0')]",
       "numberofVms": "2",
@@ -81,7 +67,7 @@
           },
           "lb": {
             "name": "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]",
-            "backEndPool": "[variables('loadBalancerSettings').backEnd.pool]"
+            "backEndPool": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
           }
         }
       },
@@ -175,30 +161,30 @@
       "properties": {
         "frontendIPConfigurations": [
           {
-            "name": "[variables('loadBalancerSettings').frontEnd.name]",
+            "name": "loadBalancerFrontEnd",
             "properties": {
               "subnet": {
-                "id": "[variables('laodBalancerSettings').frontEnd.subnetRef]"
+                "id": "[parameters('networkSettings').subnetRef.frontEnd]"
               }
             }
           }
         ],
         "backendAddressPools": [
           {
-            "name": "variables('loadBalancerSettings').backEnd.name"
+            "name": "loadBalancerBackEnd"
           }
         ],
         "loadBalancingRules": [
           {
             "properties": {
               "frontendIPConfiguration": {
-                "Id": "[variables('loadBalancerSettings').frontEnd.id]"
+                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
               },
               "backendAddressPool": {
-                "Id": "[variables('loadBalancerSettings').backEnd.pool]"
+                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
               },
               "probe": {
-                "Id": "[variables('loadBalancerSettings').probe.id]"
+                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/probes/lbprobe')]"
               },
               "protocol": "Tcp",
               "frontendPort": 80,
