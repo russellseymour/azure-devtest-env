@@ -237,7 +237,7 @@
             "version": "[variables('vmSettings').disk.systemdisk.image.version]"
           },
           "osDisk": {
-            "name": "[variables('vmSettings').systemdisk.name`]",
+            "name": "[variables('systemDiskName')]",
             "vhd": {
               "uri": "[concat(variables('vmSettings').disk.systemdisk.uriprefix, copyIndex(1), '.vhd')]"
             },
@@ -246,7 +246,7 @@
           },
           "dataDisks": [
             {
-              "name": "datadisk1",
+              "name": "[variables('dataDiskName')]",
               "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
               "lun": "[variables('vmSettings').disk.datadisk.lun]",
               "vhd": {
