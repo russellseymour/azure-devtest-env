@@ -43,11 +43,11 @@ New-AzureResourceGroup -Name "az-dev-101" -Location "North Europe" `
 #Create the functional test environment resource group
 $secPwd = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
 New-AzureResourceGroup -Name "az-tst-101" -Location "North Europe" `
--TemplateFile ".\05-az-tst-xxx\azuredeploy.json" `
--TemplateParameterFile ".\05-az-tst-xxx\azuredeploy.parameters.json" `
+-TemplateFile ".\06-az-tst-xxx\azuredeploy.json" `
+-TemplateParameterFile ".\06-az-tst-xxx\azuredeploy.parameters.json" `
 -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
 -dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
--webVMNamePrefix "dev101vmweb-0" -sqlAVMNamePrefix "dev101vmsqlA-0" `
--webAVMNamePrefix "dev101vmappA-0" `
+-webVMNamePrefix "tst101vmweb-0" -sqlAVMNamePrefix "tst101vmsqlA-0" `
+-appAVMNamePrefix "tst101vmappA-0" `
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
 -Verbose -Force

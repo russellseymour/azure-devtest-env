@@ -117,13 +117,13 @@
       }
     },
 
-    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/sharedresources.json",
-    "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/webvm.json",
-    "sqlAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/sqlavm.json",
-    "sqlBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/sqlbvm.json",
-    "appAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/appavm.json",
-    "appBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/appbvm.json",
-    "bowebvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/bowebvm.json"
+    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-test-xxx/sharedresources.json",
+    "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-test-xxx/webvm.json",
+    "sqlAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-test-xxx/sqlavm.json",
+    "sqlBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-test-xxx/sqlbvm.json",
+    "appAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-test-xxx/appavm.json",
+    "appBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-test-xxx/appbvm.json",
+    "bowebvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-test-xxx/bowebvm.json"
   },
   "resources": [
     {
