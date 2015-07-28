@@ -50,6 +50,6 @@ New-AzureResourceGroup -Name "az-tst-101" -Location "North Europe" `
 -webVMNamePrefix "tst101vmweb-0" -sqlAVMNamePrefix "tst101vmsqa-0" `
 -appAVMNamePrefix "tst101vmapa-0"  `
 -bowebVMNamePrefix "tst101vmboweb0" -sqlBVMNamePrefix "tst101vmsqb-0" `
--appBVMNamePrefix "tst101vmapb-0"  ``
+-appBVMNamePrefix "tst101vmapb-0"  `
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
 -Verbose -Force
