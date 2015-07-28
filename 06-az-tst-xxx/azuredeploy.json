@@ -358,7 +358,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('webvmTemplateUrl')]",
+          "uri": "[variables('bowebvmTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -405,7 +405,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('sqlAvmTemplateUrl')]",
+          "uri": "[variables('sqlBvmTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -452,7 +452,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('appAvmTemplateUrl')]",
+          "uri": "[variables('appBvmTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
