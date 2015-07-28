@@ -137,7 +137,7 @@
         "description": "the number of sql vms"
       }
     },
-    "numberofAppAVms": {
+    "numberofAppBVms": {
       "type": "int",
       "defaultValue": 1,
       "metadata": {

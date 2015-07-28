@@ -47,7 +47,9 @@ New-AzureResourceGroup -Name "az-tst-101" -Location "North Europe" `
 -TemplateParameterFile ".\06-az-tst-xxx\azuredeploy.parameters.json" `
 -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
 -dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
--webVMNamePrefix "tst101vmweb-0" -sqlAVMNamePrefix "tst101vmsqlA-0" `
--appAVMNamePrefix "tst101vmappA-0" `
+-webVMNamePrefix "tst101vmweb-0" -sqlAVMNamePrefix "tst101vmsqa-0" `
+-appAVMNamePrefix "tst101vmapa-0"  `
+-bowebVMNamePrefix "tst101vmboweb0" -sqlBVMNamePrefix "tst101vmsqb-0" `
+-appBVMNamePrefix "tst101vmapb-0"  ``
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
 -Verbose -Force
