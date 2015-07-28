@@ -72,13 +72,13 @@
         "description": "The web VM computer name. 14 characters are available to use."
       }
     },
-    "sqlAVMPrefix": {
+    "sqlAVMNamePrefix": {
       "type": "string",
       "metadata": {
         "description": "The app VM computer name. 14 characters are available to use."
       }
     },
-    "appAVMPrefix": {
+    "appAVMNamePrefix": {
       "type": "string",
       "metadata": {
         "description": "The app VM computer name. 14 characters are available to use."
@@ -117,13 +117,13 @@
       }
     },
 
-    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/sharedresources.json",
-    "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/webvm.json",
-    "sqlAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/sqlavm.json",
-    "sqlBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/sqlbvm.json",
-    "appAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/appavm.json",
-    "appBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/appbvm.json",
-    "bowebvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-tst-xxx/bowebvm.json"
+    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sharedresources.json",
+    "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/webvm.json",
+    "sqlAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sqlavm.json",
+    "sqlBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sqlbvm.json",
+    "appAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/appavm.json",
+    "appBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/appbvm.json",
+    "bowebvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/bowebvm.json"
   },
   "resources": [
     {
@@ -181,11 +181,11 @@
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
           },
-          "vmName": {
+          "vmNamePrefix": {
             "value" : "[parameters('webVMNamePrefix')]"
           },
           "prefix": {
-            "value" : "[concat(parameters('commonSettings').prefix,'-web')]"
+            "value" : "[concat(variables('commonSettings').prefix,'-web')]"
           }
         }
       }
@@ -225,11 +225,11 @@
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
           },
-          "vmName": {
-            "value" : "[parameters('sqlVMNamePrefix')]"
+          "vmNamePrefix": {
+            "value" : "[parameters('sqlAVMNamePrefix')]"
           },
           "prefix": {
-            "value" : "[concat(parameters('commonSettings').prefix,'-sql')]"
+            "value" : "[concat(variables('commonSettings').prefix,'-sql')]"
           }
         }
       }
@@ -269,11 +269,11 @@
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
           },
-          "vmName": {
+          "vmNamePrefix": {
             "value" : "[parameters('appAVMNamePrefix')]"
           },
           "prefix": {
-            "value" : "[concat(parameters('commonSettings').prefix,'-app')]"
+            "value" : "[concat(variables('commonSettings').prefix,'-app')]"
           }
         }
       }
