@@ -29,12 +29,25 @@ New-AzureResourceGroup -Name "az-mgt-grp" -Location "North Europe" `
   -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
  -Verbose -Force
 
-#Creat the developer environment resource group
+#Create the developer test environment resource group
 $secPwd = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
 New-AzureResourceGroup -Name "az-dev-101" -Location "North Europe" `
 -TemplateFile ".\05-az-dev-xxx\azuredeploy.json" `
 -TemplateParameterFile ".\05-az-dev-xxx\azuredeploy.parameters.json" `
 -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
 -dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
+-webVMNamePrefix "dev101vmweb-0" -sqlVMNamePrefix "dev101vmsql-0" `
+-adminPassword $secPwd -sizeOfDiskInGB 40 `
+-Verbose -Force
+
+#Create the functional test environment resource group
+$secPwd = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
+New-AzureResourceGroup -Name "az-tst-101" -Location "North Europe" `
+-TemplateFile ".\05-az-tst-xxx\azuredeploy.json" `
+-TemplateParameterFile ".\05-az-tst-xxx\azuredeploy.parameters.json" `
+-devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
+-dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
+-webVMNamePrefix "dev101vmweb-0" -sqlAVMNamePrefix "dev101vmsqlA-0" `
+-webAVMNamePrefix "dev101vmappA-0" `
 -adminPassword $secPwd -sizeOfDiskInGB 40 `
 -Verbose -Force

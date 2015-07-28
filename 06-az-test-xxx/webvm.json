@@ -1,0 +1,296 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2",
+      "metadata": {
+        "description": "Type of VM. Something that supports atleast 2 nics is required."
+      }
+    },
+    "sizeOfDiskInGB": {
+      "type": "string",
+      "metadata": {
+        "description": "Size of the empty data disk in GB"
+      }
+    },
+    "commonSettings": {
+      "type": "object",
+      "metadata": {
+        "Description": "Common settings object"
+      }
+    },
+    "storageSettings": {
+      "type": "object",
+      "metadata": {
+        "Description": "Storage settings object"
+      }
+    },
+    "networkSettings": {
+      "type": "object",
+      "metadata": {
+        "Description": "Network settings object"
+      }
+    },
+    "machineSettings": {
+      "type": "object",
+      "metadata": {
+        "Description": "Machine settings object"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "Description": "Administrator password used when provisioning virtual machines"
+      }
+    },
+    "vmNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "Description": "Prefix for the computerName. You have 14 characters available for this. "
+      }
+    },
+    "prefix": {
+      "type": "string",
+      "metadata": {
+        "Description": "Prefix for the other resources except computerName."
+      }
+    }
+  },
+  "variables": {
+    "loadBalancerName" : "[concat(parameters('prefix'),'-wlb')]",
+    "systemDiskName": "[concat(parameters('prefix'),'-vm-c-0')]",
+    "dataDiskName": "[concat(parameters('prefix'),'-vm-data-0')]",
+    "availabilitySetName": "[concat(parameters('prefix'),'-as')]",
+    "vmSettings": {
+      "name": "[parameters('vmNamePrefix')]",
+      "numberofVms": 2,
+      "size": "[parameters('vmSize')]",
+      "nic": {
+        "mgmt": {
+          "name": "[concat(parameters('prefix'),'-nic-mgt-0')]",
+          "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
+        },
+        "app": {
+          "name": "[concat(parameters('prefix').prefix,'-nic-app-0')]",
+          "subnetRef": "[parameters('networkSettings').subnetRef.app]",
+          "dns": {
+            "server1": "parameters('networkSettings').dns.server1",
+            "server2": "parameters('networkSettings').dns.server2"
+          }
+        }
+      },
+      "disk": {
+        "systemdisk": {
+          "name": "[variables('systemDiskName')]",
+          "size": "[parameters('vmSize')]",
+          "image": {
+            "publisher": "[parameters('machineSettings').os.imagePublisher]",
+            "offer": "[parameters('machineSettings').os.imageOffer]",
+            "sku": "[parameters('machineSettings').os.imageSku]",
+            "version": "[parameters('machineSettings').os.version]"
+          },
+          "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/vhds/', variables('systemDiskName'))]"
+        },
+        "datadisk": {
+          "name": "variables('dataDiskName')",
+          "size": "[parameters('sizeOfDiskInGB')]",
+          "lun": 0,
+          "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/vhds/', variables('dataDiskName'))]"
+        }
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('vmSettings').nic.app.name, copyIndex(1))]",
+      "location": "[parameters('commonSettings').location]",
+      "dependsOn": [
+          "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
+      ],
+      "copy": {
+        "name": "appNics",
+        "count": "[variables('vmSettings').numberofVms]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('vmSettings').nic.app.subnetRef]"
+              },
+              "loadBalancerBackendAddressPools": [
+                {
+                  "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('vmSettings').nic.mgmt.name, copyIndex(1))]",
+      "location": "[parameters('commonSettings').location]",
+      "copy": {
+        "name": "mgmtNics",
+        "count": "[variables('vmSettings').numberofVms]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('vmSettings').nic.mgmt.subnetRef]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-05-01-preview",
+      "name": "[variables('loadBalancerName')]",
+      "type": "Microsoft.Network/loadBalancers",
+      "location": "[parameters('commonSettings').location]",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "loadBalancerFrontEnd",
+            "properties": {
+              "subnet": {
+                "id": "[parameters('networkSettings').subnetRef.frontEnd]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "loadBalancerBackEnd"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "properties": {
+              "frontendIPConfiguration": {
+                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
+              },
+              "backendAddressPool": {
+                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
+              },
+              "probe": {
+                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/probes/lbprobe')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "idleTimeoutInMinutes": 15
+            },
+            "Name": "lbrule"
+          }
+        ],
+        "probes": [
+          {
+            "properties": {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 15,
+              "numberOfProbes": 2
+            },
+            "name": "lbprobe"
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('availabilitySetName')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[parameters('commonSettings').location]",
+      "properties": {}
+    },
+    {
+      "name": "[concat(variables('vmSettings').name, copyIndex(1))]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[parameters('commonSettings').location]",
+      "apiVersion": "2015-05-01-preview",
+      "copy": {
+        "name": "appVMs",
+        "count": "[variables('vmSettings').numberofVms]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.app.name,copyIndex(1))]",
+        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]"
+      ],
+      "tags": {
+        "displayName": "devweb"
+      },
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSettings').size]"
+        },
+        "osProfile": {
+          "computername": "[concat(variables('vmSettings').name, copyIndex(1))]",
+          "adminUsername": "[parameters('machineSettings').adminUserName]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('vmSettings').disk.systemdisk.image.publisher]",
+            "offer": "[variables('vmSettings').disk.systemdisk.image.offer]",
+            "sku": "[variables('vmSettings').disk.systemdisk.image.sku]",
+            "version": "[variables('vmSettings').disk.systemdisk.image.version]"
+          },
+          "osDisk": {
+            "name": "[variables('systemDiskName')]",
+            "vhd": {
+              "uri": "[concat(variables('vmSettings').disk.systemdisk.uriprefix, copyIndex(1), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "[variables('dataDiskName')]",
+              "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
+              "lun": "[variables('vmSettings').disk.datadisk.lun]",
+              "vhd": {
+                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix, copyIndex(1), '.vhd')]"
+              },
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "properties": {
+                "primary": true
+              },
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.app.name, copyIndex(1)))]"
+            },
+            {
+              "properties": {
+                "primary": false
+              },
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.mgmt.name, copyIndex(1)))]"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
