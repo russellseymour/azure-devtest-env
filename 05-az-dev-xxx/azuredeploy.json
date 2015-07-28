@@ -175,6 +175,12 @@
           },
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
+          },
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-web')]"
+          },
+          "numberofVms": {
+            "value" : 1
           }
         }
       }
@@ -216,6 +222,12 @@
           },
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
+          },
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-sql')]"
+          },
+          "numberofVms": {
+            "value" : 1
           }
         }
       }

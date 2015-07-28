@@ -48,7 +48,7 @@
     "vmNamePrefix": {
       "type": "string",
       "metadata": {
-        "Description": "Prefix for the computerName. You have 14 characters available for this. "
+        "Description": "Prefix for the computerName. You have 14 characters available for this."
       }
     },
     "prefix": {

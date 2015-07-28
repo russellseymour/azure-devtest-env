@@ -45,29 +45,41 @@
         "Description": "Administrator password used when provisioning virtual machines"
       }
     },
-    "vMNamePrefix" :{
+    "vmNamePrefix": {
       "type": "string",
       "metadata": {
-        "Description": "The computer name of the vm. This is limited to 15 characters."
+        "Description": "Prefix for the computerName. You have 14 characters available for this."
+      }
+    },
+    "prefix": {
+      "type": "string",
+      "metadata": {
+        "Description": "Prefix for the other resources except computerName."
+      }
+    },
+    "numberofVms": {
+      "type": "int",
+      "metadata": {
+        "Description": "Prefix for the other resources except computerName."
       }
     }
   },
   "variables": {
-    "loadBalancerName" : "[concat(parameters('commonSettings').prefix,'-wlb')]",
-    "systemDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-c-0')]",
-    "dataDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-data-0')]",
-    "availabilitySetName": "[concat(parameters('commonSettings').prefix,'-web-as')]",
+    "loadBalancerName" : "[concat(parameters('prefix'),'-wlb')]",
+    "systemDiskName": "[concat(parameters('prefix'),'-vm-c-0')]",
+    "dataDiskName": "[concat(parameters('prefix'),'-vm-data-0')]",
+    "availabilitySetName": "[concat(parameters('prefix'),'-as')]",
     "vmSettings": {
       "name": "[parameters('vmNamePrefix')]",
-      "numberofVms": 1,
+      "numberofVms": "[parameters(numberofVms)]",
       "size": "[parameters('vmSize')]",
       "nic": {
         "mgmt": {
-          "name": "[concat(parameters('commonSettings').prefix,'-web-nic-mgt-0')]",
+          "name": "[concat(parameters('prefix'),'-nic-mgt-0')]",
           "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
         },
         "app": {
-          "name": "[concat(parameters('commonSettings').prefix,'-web-nic-app-0')]",
+          "name": "[concat(parameters('prefix'),'-nic-app-0')]",
           "subnetRef": "[parameters('networkSettings').subnetRef.app]",
           "dns": {
             "server1": "parameters('networkSettings').dns.server1",
