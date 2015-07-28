@@ -180,7 +180,7 @@
             {
               "name": "[concat(variables('dataDiskName'),'-01')]",
               "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
-              "lun": "[variables('vmSettings').disk.datadisk.lun]",
+              "lun": 0,
               "vhd": {
                 "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-01-', copyIndex(1), '.vhd')]"
               },
@@ -189,7 +189,7 @@
             {
               "name": "[concat(variables('dataDiskName'),'-02')]",
               "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
-              "lun": "[variables('vmSettings').disk.datadisk.lun]",
+              "lun": 1,
               "vhd": {
                 "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-02-',  copyIndex(1), '.vhd')]"
               },
@@ -198,7 +198,7 @@
             {
               "name": "[concat(variables('dataDiskName'),'-03')]",
               "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
-              "lun": "[variables('vmSettings').disk.datadisk.lun]",
+              "lun": 2,
               "vhd": {
                 "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-03-',  copyIndex(1), '.vhd')]"
               },
@@ -207,7 +207,7 @@
             {
               "name": "[concat(variables('dataDiskName'),'-04')]",
               "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
-              "lun": "[variables('vmSettings').disk.datadisk.lun]",
+              "lun": 3,
               "vhd": {
                 "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-04-',  copyIndex(1), '.vhd')]"
               },
