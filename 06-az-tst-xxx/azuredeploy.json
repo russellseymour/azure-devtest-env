@@ -84,6 +84,24 @@
         "description": "The app VM computer name. 14 characters are available to use."
       }
     },
+    "bowebVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The web VM computer name. 14 characters are available to use."
+      }
+    },
+    "sqlBVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The app VM computer name. 14 characters are available to use."
+      }
+    },
+    "appBVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The app VM computer name. 14 characters are available to use."
+      }
+    },
     "numberofWebVms": {
       "type": "int",
       "defaultValue": 2,
@@ -101,6 +119,27 @@
     "numberofAppAVms": {
       "type": "int",
       "defaultValue": 2,
+      "metadata": {
+        "description": "the number of web vms"
+      }
+    },
+    "numberofboWebVms": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "the number of web vms"
+      }
+    },
+    "numberofSqlBVms": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "the number of sql vms"
+      }
+    },
+    "numberofAppAVms": {
+      "type": "int",
+      "defaultValue": 1,
       "metadata": {
         "description": "the number of web vms"
       }
@@ -140,11 +179,12 @@
 
     "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sharedresources.json",
     "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/webvm.json",
-    "sqlAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sqlavm.json",
-    "sqlBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sqlbvm.json",
-    "appAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/appavm.json",
-    "appBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/appbvm.json",
-    "bowebvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/bowebvm.json"
+    "sqlAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sqlvm.json",
+    "appAvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/appvm.json",
+
+    "bowebvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/webvm.json",
+    "sqlBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sqlvm.json",
+    "appBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/appvm.json"
   },
   "resources": [
     {
@@ -253,7 +293,7 @@
             "value" : "[parameters('sqlAVMNamePrefix')]"
           },
           "prefix": {
-            "value" : "[concat(variables('commonSettings').prefix,'-sql')]"
+            "value" : "[concat(variables('commonSettings').prefix,'-sql-a')]"
           },
           "numberofVms": {
             "value" : "[parameters('numberofSqlAVms')]"
@@ -300,10 +340,151 @@
             "value" : "[parameters('appAVMNamePrefix')]"
           },
           "prefix": {
-            "value" : "[concat(variables('commonSettings').prefix,'-app')]"
+            "value" : "[concat(variables('commonSettings').prefix,'-app-a')]"
           },
           "numberofVms": {
             "value" : "[parameters('numberofAppAVms')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "bowebvm-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('webvmTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          },
+          "sizeOfDiskInGB" : {
+            "value" : "[parameters('sizeOfDiskInGB')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
+          },
+          "vmNamePrefix": {
+            "value" : "[parameters('bowebVMNamePrefix')]"
+          },
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-boweb')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofboWebVms')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "sqlBvm-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('sqlAvmTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          },
+          "sizeOfDiskInGB" : {
+            "value" : "[parameters('sizeOfDiskInGB')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
+          },
+          "vmNamePrefix": {
+            "value" : "[parameters('sqlBVMNamePrefix')]"
+          },
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-sql-b')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofSqlBVms')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "appBvm-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('appAvmTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          },
+          "sizeOfDiskInGB" : {
+            "value" : "[parameters('sizeOfDiskInGB')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
+          },
+          "vmNamePrefix": {
+            "value" : "[parameters('appBVMNamePrefix')]"
+          },
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-app-b')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofAppBVms')]"
           }
         }
       }
