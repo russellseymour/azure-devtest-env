@@ -56,6 +56,12 @@
       "metadata": {
         "Description": "Prefix for the other resources except computerName."
       }
+    },
+    "numberofVms": {
+      "type": "int",
+      "metadata": {
+        "Description": "Prefix for the other resources except computerName."
+      }
     }
   },
   "variables": {
@@ -65,7 +71,7 @@
     "availabilitySetName": "[concat(parameters('prefix'),'-as')]",
     "vmSettings": {
       "name": "[parameters('vmNamePrefix')]",
-      "numberofVms": 2,
+      "numberofVms": "[parameters('numberofVms')]",
       "size": "[parameters('vmSize')]",
       "nic": {
         "mgmt": {

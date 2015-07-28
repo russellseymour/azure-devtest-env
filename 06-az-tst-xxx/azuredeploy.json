@@ -83,6 +83,27 @@
       "metadata": {
         "description": "The app VM computer name. 14 characters are available to use."
       }
+    },
+    "numberofWebVms": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "the number of web vms"
+      }
+    },
+    "numberofSqlAVms": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "the number of sql vms"
+      }
+    },
+    "numberofAppAVms": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "the number of web vms"
+      }
     }
   },
   "variables": {
@@ -186,6 +207,9 @@
           },
           "prefix": {
             "value" : "[concat(variables('commonSettings').prefix,'-web')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofWebVms')]"
           }
         }
       }
@@ -230,6 +254,9 @@
           },
           "prefix": {
             "value" : "[concat(variables('commonSettings').prefix,'-sql')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofSqlAVms')]"
           }
         }
       }
@@ -274,6 +301,9 @@
           },
           "prefix": {
             "value" : "[concat(variables('commonSettings').prefix,'-app')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofAppAVms')]"
           }
         }
       }
