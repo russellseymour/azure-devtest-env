@@ -46,22 +46,21 @@
       }
     }
   },
-  "variables": {
-    "loadBalancerName" : "[concat(parameters('commonSettings').prefix,'-wlb')]",
-    "systemDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-c-0')]",
-    "dataDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-data-0')]",
-    "availabilitySetName": "[concat(parameters('commonSettings').prefix,'-web-as')]",
+  "variables" : {
+    "systemDiskName": "[concat(parameters('commonSettings').prefix,'-vm-sql-c-0')]",
+    "dataDiskName": "[concat(parameters('commonSettings').prefix,'-vm-sql-data')]",
+
     "vmSettings": {
-      "name": "[concat(parameters('commonSettings').prefix,'-w-0')]",
-      "numberofVms": 2,
+      "name": "[concat(parameters('commonSettings').prefix,'-s-0')]",
+      "numberofVms": 1,
       "size": "[parameters('vmSize')]",
       "nic": {
         "mgmt": {
-          "name": "[concat(parameters('commonSettings').prefix,'-web-nic-mgt-0')]",
+          "name": "[concat(parameters('commonSettings').prefix,'-sql-nic-mgt-0')]",
           "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
         },
         "app": {
-          "name": "[concat(parameters('commonSettings').prefix,'-web-nic-app-0')]",
+          "name": "[concat(parameters('commonSettings').prefix,'-sql-nic-app-0')]",
           "subnetRef": "[parameters('networkSettings').subnetRef.app]",
           "dns": {
             "server1": "parameters('networkSettings').dns.server1",
@@ -90,15 +89,12 @@
       }
     }
   },
-  "resources": [
+  "resources" : [
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('vmSettings').nic.app.name, copyIndex(1))]",
       "location": "[parameters('commonSettings').location]",
-      "dependsOn": [
-          "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
-      ],
       "copy": {
         "name": "appNics",
         "count": "[variables('vmSettings').numberofVms]"
@@ -111,12 +107,7 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('vmSettings').nic.app.subnetRef]"
-              },
-              "loadBalancerBackendAddressPools": [
-                {
-                  "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
-                }
-              ]
+              }
             }
           }
         ]
@@ -146,67 +137,6 @@
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
-      "name": "[variables('loadBalancerName')]",
-      "type": "Microsoft.Network/loadBalancers",
-      "location": "[parameters('commonSettings').location]",
-      "properties": {
-        "frontendIPConfigurations": [
-          {
-            "name": "loadBalancerFrontEnd",
-            "properties": {
-              "subnet": {
-                "id": "[parameters('networkSettings').subnetRef.frontEnd]"
-              }
-            }
-          }
-        ],
-        "backendAddressPools": [
-          {
-            "name": "loadBalancerBackEnd"
-          }
-        ],
-        "loadBalancingRules": [
-          {
-            "properties": {
-              "frontendIPConfiguration": {
-                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/frontendIpConfigurations/loadBalancerFrontEnd')]"
-              },
-              "backendAddressPool": {
-                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
-              },
-              "probe": {
-                "Id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/probes/lbprobe')]"
-              },
-              "protocol": "Tcp",
-              "frontendPort": 80,
-              "backendPort": 80,
-              "idleTimeoutInMinutes": 15
-            },
-            "Name": "lbrule"
-          }
-        ],
-        "probes": [
-          {
-            "properties": {
-              "protocol": "Tcp",
-              "port": 80,
-              "intervalInSeconds": 15,
-              "numberOfProbes": 2
-            },
-            "name": "lbprobe"
-          }
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[variables('availabilitySetName')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[parameters('commonSettings').location]",
-      "properties": {}
-    },
-    {
       "name": "[concat(variables('vmSettings').name, copyIndex(1))]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[parameters('commonSettings').location]",
@@ -217,11 +147,10 @@
       },
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.app.name,copyIndex(1))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]",
-        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]"
       ],
       "tags": {
-        "displayName": "devweb"
+        "displayName": "devsql"
       },
       "properties": {
         "availabilitySet": {
@@ -243,7 +172,7 @@
             "version": "[variables('vmSettings').disk.systemdisk.image.version]"
           },
           "osDisk": {
-            "name": "[variables('systemDiskName')]",
+            "name": "[concat(variables('systemDiskName'),'1')]",
             "vhd": {
               "uri": "[concat(variables('vmSettings').disk.systemdisk.uriprefix, copyIndex(1), '.vhd')]"
             },
@@ -252,11 +181,38 @@
           },
           "dataDisks": [
             {
-              "name": "[variables('dataDiskName')]",
+              "name": "[concat(variables('dataDiskName'),'-01')]",
               "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
               "lun": "[variables('vmSettings').disk.datadisk.lun]",
               "vhd": {
-                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix, copyIndex(1), '.vhd')]"
+                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-01-', copyIndex(1), '.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "[concat(variables('dataDiskName'),'-02')]",
+              "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
+              "lun": "[variables('vmSettings').disk.datadisk.lun]",
+              "vhd": {
+                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-02-',  copyIndex(1), '.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "[concat(variables('dataDiskName'),'-03')]",
+              "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
+              "lun": "[variables('vmSettings').disk.datadisk.lun]",
+              "vhd": {
+                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-03-',  copyIndex(1), '.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "[concat(variables('dataDiskName'),'-04')]",
+              "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
+              "lun": "[variables('vmSettings').disk.datadisk.lun]",
+              "vhd": {
+                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-04-',  copyIndex(1), '.vhd')]"
               },
               "createOption": "Empty"
             }
@@ -281,4 +237,5 @@
       }
     }
   ]
+
 }

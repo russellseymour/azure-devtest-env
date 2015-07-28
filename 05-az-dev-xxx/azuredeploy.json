@@ -100,7 +100,8 @@
     },
 
     "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-dev-xxx/sharedresources.json",
-    "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-dev-xxx/webvm.json"
+    "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-dev-xxx/webvm.json",
+    "sqlvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-dev-xxx/sqlvm.json"
   },
   "resources": [
     {
@@ -134,6 +135,44 @@
         "mode": "Incremental",
         "templateLink": {
           "uri": "[variables('webvmTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          },
+          "sizeOfDiskInGB" : {
+            "value" : "[parameters('sizeOfDiskInGB')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "sqlvm-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('sqlvmTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
