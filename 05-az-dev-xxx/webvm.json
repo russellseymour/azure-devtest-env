@@ -44,6 +44,12 @@
       "metadata": {
         "Description": "Administrator password used when provisioning virtual machines"
       }
+    },
+    "vMNamePrefix" :{
+      "type": "string",
+      "metadata": {
+        "Description": "The computer name of the vm. This is limited to 15 characters."
+      }
     }
   },
   "variables": {
@@ -52,8 +58,8 @@
     "dataDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-data-0')]",
     "availabilitySetName": "[concat(parameters('commonSettings').prefix,'-web-as')]",
     "vmSettings": {
-      "name": "[concat(parameters('commonSettings').prefix,'-w-0')]",
-      "numberofVms": 2,
+      "name": "[parameters('vmNamePrefix')]",
+      "numberofVms": 1,
       "size": "[parameters('vmSize')]",
       "nic": {
         "mgmt": {

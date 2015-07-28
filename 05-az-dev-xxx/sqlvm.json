@@ -44,6 +44,12 @@
       "metadata": {
         "Description": "Administrator password used when provisioning virtual machines"
       }
+    },
+    "vmNamePrefix" :{
+      "type": "string",
+      "metadata": {
+        "Description": "The computer name of the vm. This is limited to 15 characters."
+      }
     }
   },
   "variables" : {
@@ -51,7 +57,7 @@
     "dataDiskName": "[concat(parameters('commonSettings').prefix,'-vm-sql-data')]",
 
     "vmSettings": {
-      "name": "[concat(parameters('commonSettings').prefix,'-s-0')]",
+      "name": "[parameters('vmNamePrefix')]",
       "numberofVms": 1,
       "size": "[parameters('vmSize')]",
       "nic": {
@@ -83,7 +89,6 @@
         "datadisk": {
           "name": "variables('dataDiskName')",
           "size": "[parameters('sizeOfDiskInGB')]",
-          "lun": 0,
           "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/vhds/', variables('dataDiskName'))]"
         }
       }

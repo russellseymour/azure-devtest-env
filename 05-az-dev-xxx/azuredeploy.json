@@ -50,7 +50,7 @@
       "type":"string",
       "defaultValue" : "[resourceGroup().name]",
       "metadata" : {
-        "description" : "A prefix used for all resources in this resource group"
+        "description" : "A prefix used for all resources in this resource group except the computer name"
       }
     },
     "vmSize": {
@@ -64,6 +64,20 @@
       "type": "string",
       "metadata": {
         "description": "Size of the empty data disk in GB"
+      }
+    },
+    "webVMNamePrefix": {
+      "type": "string",
+      "defaultValue": "dev-web-vm-0",
+      "metadata": {
+        "description": "The web VM computer name. 14 characters are available to use."
+      }
+    },
+    "sqlVMNamePrefix": {
+      "type": "string",
+      "defaultValue": "dev-sql-vm-0",
+      "metadata": {
+        "description": "The sql VM computer name. 14 characters are available to use."
       }
     }
   },
@@ -156,6 +170,9 @@
           "sizeOfDiskInGB" : {
             "value" : "[parameters('sizeOfDiskInGB')]"
           },
+          "vmNamePrefix": {
+            "value" : "[parameters('webVMNamePrefix')]"
+          },
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
           }
@@ -193,6 +210,9 @@
           },
           "sizeOfDiskInGB" : {
             "value" : "[parameters('sizeOfDiskInGB')]"
+          },
+          "vmNamePrefix": {
+            "value" : "[parameters('sqlvmNamePrefix')]"
           },
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
