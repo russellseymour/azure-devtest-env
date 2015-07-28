@@ -73,7 +73,7 @@
           "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
         },
         "app": {
-          "name": "[concat(parameters('prefix').prefix,'-nic-app-0')]",
+          "name": "[concat(parameters('prefix'),'-nic-app-0')]",
           "subnetRef": "[parameters('networkSettings').subnetRef.app]",
           "dns": {
             "server1": "parameters('networkSettings').dns.server1",
