@@ -50,6 +50,7 @@
     "loadBalancerName" : "[concat(parameters('commonSettings').prefix,'-wlb')]",
     "systemDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-c-0')]",
     "dataDiskName": "[concat(parameters('commonSettings').prefix,'-vm-web-e-0')]",
+    "availabilitySetName": "[concat(parameters('commonSettings').prefix,'-as')]",
     "vmSettings": {
       "name": "[concat(parameters('commonSettings').prefix,'-w-0')]",
       "numberofVms": 2,
@@ -199,6 +200,13 @@
       }
     },
     {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('availabilitySetName')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "properties": {}
+    },
+    {
       "name": "[concat(variables('vmSettings').name, copyIndex(1))]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[parameters('commonSettings').location]",
@@ -209,12 +217,16 @@
       },
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.app.name,copyIndex(1))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]"
       ],
       "tags": {
         "displayName": "devweb"
       },
       "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+        },
         "hardwareProfile": {
           "vmSize": "[variables('vmSettings').size]"
         },
