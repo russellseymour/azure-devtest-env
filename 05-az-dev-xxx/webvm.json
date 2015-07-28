@@ -71,7 +71,7 @@
     "availabilitySetName": "[concat(parameters('prefix'),'-as')]",
     "vmSettings": {
       "name": "[parameters('vmNamePrefix')]",
-      "numberofVms": "[parameters(numberofVms)]",
+      "numberofVms": "[parameters('numberofVms')]",
       "size": "[parameters('vmSize')]",
       "nic": {
         "mgmt": {
