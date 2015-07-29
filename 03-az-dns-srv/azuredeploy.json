@@ -164,6 +164,52 @@
           ]
         }
       }
+    },
+    {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(parameters('vmNamePrefix'),'1/', variables('vmExtensionName'))]",
+        "apiVersion": "2015-05-01-preview",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'),'1')]"
+        ],
+        "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "1.9",
+            "settings": {
+                "ModulesUrl": "[variables('modulesUrl1')]",
+                "SasToken": "",
+                "ConfigurationFunction": "[variables('configurationFunction1')]",
+                "Properties": {
+                    "MachineName": "concat([parameters('vmNamePrefix')],'1')"
+                }
+            },
+            "protectedSettings": null
+        }
+    },
+    {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(parameters('vmNamePrefix'),'2/', variables('vmExtensionName'))]",
+        "apiVersion": "2015-05-01-preview",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'),'2')]"
+        ],
+        "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "1.9",
+            "settings": {
+                "ModulesUrl": "[variables('modulesUrl2')]",
+                "SasToken": "",
+                "ConfigurationFunction": "[variables('configurationFunction2')]",
+                "Properties": {
+                    "MachineName": "concat([parameters('vmNamePrefix')],'2')"
+                }
+            },
+            "protectedSettings": null
+        }
     }
   ]
 }
