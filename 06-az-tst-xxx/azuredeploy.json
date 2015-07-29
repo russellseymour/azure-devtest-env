@@ -192,6 +192,15 @@
         "version": "latest"
       }
     },
+    "utilMachineSettings": {
+      "adminUserName": "[parameters('adminUserName')]",
+      "os": {
+        "imagePublisher": "MicrosoftWindowsServer",
+        "imageOffer": "WindowsServer",
+        "imageSku": "2012-R2-Datacenter",
+        "version": "latest"
+      }
+    },
 
     "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sharedresources.json",
     "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/webvm.json",

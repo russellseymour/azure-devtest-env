@@ -64,10 +64,10 @@
       }
     }
   },
-  "variables" : {
+  "variables": {
     "systemDiskName": "[concat(parameters('prefix'),'-vm-c-0')]",
-    "dataDiskName": "[concat(parameters('prefix'),'-vm-data')]",
-
+    "dataDiskName": "[concat(parameters('prefix'),'-vm-data-0')]",
+    "availabilitySetName": "[concat(parameters('prefix'),'-as')]",
     "vmSettings": {
       "name": "[parameters('vmNamePrefix')]",
       "numberofVms": "[parameters('numberofVms')]",
@@ -76,14 +76,6 @@
         "mgmt": {
           "name": "[concat(parameters('prefix'),'-nic-mgt-0')]",
           "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
-        },
-        "app": {
-          "name": "[concat(parameters('prefix'),'-nic-app-0')]",
-          "subnetRef": "[parameters('networkSettings').subnetRef.app]",
-          "dns": {
-            "server1": "parameters('networkSettings').dns.server1",
-            "server2": "parameters('networkSettings').dns.server2"
-          }
         }
       },
       "disk": {
@@ -101,35 +93,13 @@
         "datadisk": {
           "name": "variables('dataDiskName')",
           "size": "[parameters('sizeOfDiskInGB')]",
+          "lun": 0,
           "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/vhds/', variables('dataDiskName'))]"
         }
       }
     }
   },
-  "resources" : [
-    {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('vmSettings').nic.app.name, copyIndex(1))]",
-      "location": "[parameters('commonSettings').location]",
-      "copy": {
-        "name": "appNics",
-        "count": "[variables('vmSettings').numberofVms]"
-      },
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('vmSettings').nic.app.subnetRef]"
-              }
-            }
-          }
-        ]
-      }
-    },
+  "resources": [
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/networkInterfaces",
@@ -154,22 +124,32 @@
       }
     },
     {
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "[variables('availabilitySetName')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[parameters('commonSettings').location]",
+      "properties": {}
+    },
+    {
       "name": "[concat(variables('vmSettings').name, copyIndex(1))]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[parameters('commonSettings').location]",
       "apiVersion": "2015-05-01-preview",
       "copy": {
-        "name": "appVMs",
+        "name": "dcVMs",
         "count": "[variables('vmSettings').numberofVms]"
       },
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.app.name,copyIndex(1))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]"
       ],
       "tags": {
-        "displayName": "devsql"
+        "displayName": "devweb"
       },
       "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+        },
         "hardwareProfile": {
           "vmSize": "[variables('vmSettings').size]"
         },
@@ -186,7 +166,7 @@
             "version": "[variables('vmSettings').disk.systemdisk.image.version]"
           },
           "osDisk": {
-            "name": "[concat(variables('systemDiskName'),'1')]",
+            "name": "[variables('systemDiskName')]",
             "vhd": {
               "uri": "[concat(variables('vmSettings').disk.systemdisk.uriprefix, copyIndex(1), '.vhd')]"
             },
@@ -195,11 +175,11 @@
           },
           "dataDisks": [
             {
-              "name": "[concat(variables('dataDiskName'),'-01')]",
+              "name": "[variables('dataDiskName')]",
               "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
-              "lun": 0,
+              "lun": "[variables('vmSettings').disk.datadisk.lun]",
               "vhd": {
-                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix,'-01-', copyIndex(1), '.vhd')]"
+                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix, copyIndex(1), '.vhd')]"
               },
               "createOption": "Empty"
             }
@@ -211,12 +191,6 @@
               "properties": {
                 "primary": true
               },
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.app.name, copyIndex(1)))]"
-            },
-            {
-              "properties": {
-                "primary": false
-              },
               "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.mgmt.name, copyIndex(1)))]"
             }
           ]
@@ -224,5 +198,4 @@
       }
     }
   ]
-
 }

@@ -139,6 +139,15 @@
         "version": "latest"
       }
     },
+    "utilMachineSettings": {
+      "adminUserName": "[parameters('adminUserName')]",
+      "os": {
+        "imagePublisher": "MicrosoftWindowsServer",
+        "imageOffer": "WindowsServer",
+        "imageSku": "2012-R2-Datacenter",
+        "version": "latest"
+      }
+    },
 
     "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-dev-xxx/sharedresources.json",
     "webvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/05-az-dev-xxx/webvm.json",
@@ -284,7 +293,7 @@
             "value": "[variables('networkSettings')]"
           },
           "machineSettings": {
-            "value": "[variables('machineSettings')]"
+            "value": "[variables('utilMachineSettings')]"
           },
           "adminPassword" : {
             "value": "[parameters('adminPassword')]"
