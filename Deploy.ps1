@@ -60,8 +60,8 @@ New-AzureResourceGroup -Name $devResourceGroup -Location $location `
 -storageAccountNameFromTemplate $devStorageAccountName `
 -dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
 -webVMNamePrefix "dev101web-0" -numberofWebVms 1 `
--sqlVMNamePrefix "dev101sql-0"  -numberofSqlVms 1 `
--utilVMNamePrefix "dev101utl-0"  -numberofUtilVms 1 `
+-sqlVMNamePrefix "dev101sql-0" -numberofSqlVms 1 `
+-utilVMNamePrefix "dev101utl-0" -numberofUtilVms 1 `
 -sizeOfDiskInGB 40 `
 -adminPassword $secPwd  -Verbose -Force
 
@@ -76,10 +76,10 @@ New-AzureResourceGroup -Name $tstResourceGroup -Location $location `
 -dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5"  `
 -webVMNamePrefix "tst101web-0" -numberofWebVms 2 `
 -sqlAVMNamePrefix "tst101sqa-0" -numberofSqlAVms 1 `
--appAVMNamePrefix "tst101apa-0"  -numberofAppAVms 2 `
+-appAVMNamePrefix "tst101apa-0" -numberofAppAVms 2 `
 -bowebVMNamePrefix "tst101boweb0" -numberofboWebVms 1 `
 -sqlBVMNamePrefix "tst101sqb-0" -numberofSqlBVms 1 `
--appBVMNamePrefix "tst101apb-0"  -numberofAppBVms 1 `
--utilVMNamePrefix "tst101utl-0"  -numberofUtilVms 1 `
+-appBVMNamePrefix "tst101apb-0" -numberofAppBVms 1 `
+-utilVMNamePrefix "tst101utl-0" -numberofUtilVms 1 `
 -sizeOfDiskInGB 40 `
 -adminPassword $secPwd  -Verbose -Force
