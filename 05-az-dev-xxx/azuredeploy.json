@@ -16,7 +16,9 @@
     },
     "storageAccountName": {
       "type": "string",
-      "defaultValue": "[replace(concat(resourceGroup().name,'sto'),'-','')]"
+      "metadata": {
+        "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
+      }
     },
     "storageType": {
       "type": "string",

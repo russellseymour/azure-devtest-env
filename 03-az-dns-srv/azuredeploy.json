@@ -3,8 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountName": {
-      "type": "string",
-      "defaultValue": "[replace(concat(resourceGroup().name,'-sto'),'-','')]",
+      "type": "string",      
       "metadata": {
         "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
       }
