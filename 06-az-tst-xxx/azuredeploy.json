@@ -74,41 +74,17 @@
         "description": "The web VM computer name. 14 characters are available to use."
       }
     },
-    "sqlAVMNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The app VM computer name. 14 characters are available to use."
-      }
-    },
-    "appAVMNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The app VM computer name. 14 characters are available to use."
-      }
-    },
-    "bowebVMNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The web VM computer name. 14 characters are available to use."
-      }
-    },
-    "sqlBVMNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The app VM computer name. 14 characters are available to use."
-      }
-    },
-    "appBVMNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The app VM computer name. 14 characters are available to use."
-      }
-    },
     "numberofWebVms": {
       "type": "int",
       "defaultValue": 2,
       "metadata": {
         "description": "the number of web vms"
+      }
+    },
+    "sqlAVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The app VM computer name. 14 characters are available to use."
       }
     },
     "numberofSqlAVms": {
@@ -118,11 +94,23 @@
         "description": "the number of sql vms"
       }
     },
+    "appAVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The app VM computer name. 14 characters are available to use."
+      }
+    },
     "numberofAppAVms": {
       "type": "int",
       "defaultValue": 2,
       "metadata": {
         "description": "the number of web vms"
+      }
+    },
+    "bowebVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The web VM computer name. 14 characters are available to use."
       }
     },
     "numberofboWebVms": {
@@ -132,6 +120,12 @@
         "description": "the number of web vms"
       }
     },
+    "sqlBVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The app VM computer name. 14 characters are available to use."
+      }
+    },
     "numberofSqlBVms": {
       "type": "int",
       "defaultValue": 1,
@@ -139,11 +133,31 @@
         "description": "the number of sql vms"
       }
     },
+    "appBVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The app VM computer name. 14 characters are available to use."
+      }
+    },
     "numberofAppBVms": {
       "type": "int",
       "defaultValue": 1,
       "metadata": {
         "description": "the number of web vms"
+      }
+    },
+    "utilVMNamePrefix": {
+      "type": "string",
+      "defaultValue": "dev-utl-vm-0",
+      "metadata": {
+        "description": "The sql VM computer name. 14 characters are available to use."
+      }
+    },
+    "numberofUtilVMs": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "the number of sql vms"
       }
     }
   },
@@ -186,7 +200,9 @@
 
     "bowebvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/webvm.json",
     "sqlBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/sqlvm.json",
-    "appBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/appvm.json"
+    "appBvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/appvm.json",
+
+    "utilvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/06-az-tst-xxx/utilvm.json"
   },
   "resources": [
     {
@@ -487,6 +503,53 @@
           },
           "numberofVms": {
             "value" : "[parameters('numberofAppBVms')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "utilvm-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('utilvmTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          },
+          "sizeOfDiskInGB" : {
+            "value" : "[parameters('sizeOfDiskInGB')]"
+          },
+          "vmNamePrefix": {
+            "value" : "[parameters('utilvmNamePrefix')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
+          },
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-util')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofUtilVMs')]"
           }
         }
       }
