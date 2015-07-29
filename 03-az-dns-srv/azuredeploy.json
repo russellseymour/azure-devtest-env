@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountName": {
-      "type": "string",      
+      "type": "string",
       "metadata": {
         "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
       }
@@ -44,6 +44,18 @@
       "metadata": {
         "description": "The devVNET network name."
       }
+    },
+    "vmNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The computer name of the vm."
+      }
+    },
+    "numberofVms": {
+      "type": "int",
+      "metadata": {
+        "description": "The number of vms required"
+      }
     }
   },
   "variables": {
@@ -52,13 +64,12 @@
     "nicName": "[concat(resourceGroup().name,'-nic-0')]",
     "subnetName": "DnsSubnet",
     "storageAccountType": "Standard_LRS",
-    "vmName": "az-dns-vm-0",
-    "OSDiskName": "[variables('vmName')]",
+    "OSDiskName": "[parameters('vmNamePrefix')]",
     "vmSize": "Standard_A1",
     "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
     "availabilitySetName": "[concat(resourceGroup().name,'-as')]",
-    "numberOfInstances": 2,
+    "numberOfInstances": "[parameters('numberofVms')]",
 
     "modulesUrl": "https://github.com/Azure/azure-quickstart-templates/raw/master/dsc-extension-iis-server-windows-vm/ContosoWebsite.ps1.zip",
     "configurationFunction": "ContosoWebsite.ps1\\ContosoWebsite"
@@ -106,7 +117,7 @@
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(variables('vmName'),copyIndex(1))]",
+      "name": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
       "location": "[resourceGroup().location]",
       "copy": {
         "name": "vmLoop",
@@ -125,7 +136,7 @@
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-          "computername": "[concat(variables('vmName'),copyIndex(1))]",
+          "computername": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
