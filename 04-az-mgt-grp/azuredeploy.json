@@ -14,53 +14,157 @@
         "description": "The devVNET network name."
       }
     },
-    "vmTypes": {
-      "type": "array",
-      "defaultValue": [
-        "dc-01",
-        "dc-02",
-        "chef",
-        "wsus",
-        "es-01",
-        "es-02",
-        "fs",
-        "mon",
-        "prov"
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
+      }
+    },
+    "storageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS"
       ]
     },
-    "count": {
+    "adminUserName": {
+      "type": "string",
+      "defaultValue": "domadm"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "prefix" :{
+      "type":"string",
+      "defaultValue" : "[resourceGroup().name]",
+      "metadata" : {
+        "description" : "A prefix used for all resources in this resource group except the computer name"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2",
+      "metadata": {
+        "description": "Type of VM. Something that supports atleast 2 nics is required."
+      }
+    },
+    "sizeOfDiskInGB": {
+      "type": "string",
+      "metadata": {
+        "description": "Size of the empty data disk in GB"
+      }
+    },
+    "dcVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The dc VM computer name. 14 characters are available to use."
+      }
+    },
+    "numberofdcVms": {
       "type": "int",
-      "defaultValue": 9
+      "defaultValue": 2,
+      "metadata": {
+        "description": "the number of dc vms"
+      }
     }
   },
   "variables": {
-    "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
-    "subnetNameMgmt": "subnetMgmt",
-    "nicNameMgmt": "[concat(resourceGroup().name,'-nic-')]",
-    "subnetRefMgmt": "[concat(variables('vnetID'),'/subnets/',variables('subnetNameMgmt'))]"
+    "commonSettings": {
+      "location": "[resourceGroup().location]",
+      "prefix": "[parameters('prefix')]",
+      "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]"
+    },
+
+    "storageSettings": {
+      "storageAccountName": "[parameters('storageAccountName')]",
+      "storageType": "[parameters('storageType')]"
+    },
+    "networkSettings": {
+      "subnetRef": {
+        "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
+      }
+    },
+    "machineSettings": {
+      "adminUserName": "[parameters('adminUserName')]",
+      "os": {
+        "imagePublisher": "MicrosoftWindowsServer",
+        "imageOffer": "WindowsServer",
+        "imageSku": "2012-R2-Datacenter",
+        "version": "latest"
+      }
+    },
+
+    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/sharedresources.json",
+    "dcvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/dcvm.json"
   },
   "resources": [
     {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('nicNameMgmt'), parameters('vmTypes')[copyIndex()])]",
-      "location": "[resourceGroup().location]",
-      "copy": {
-         "name": "niccopy",
-         "count": "[parameters('count')]"
-      },
+      "name": "shared-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
       "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAllocationMethod": "Dynamic",
-              "subnet": {
-                "id": "[variables('subnetRefMgmt')]"
-              }
-            }
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('sharedTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
           }
-        ]
+        }
+      }
+    },
+    {
+      "name": "dcvm-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('dcvmTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          },
+          "sizeOfDiskInGB" : {
+            "value" : "[parameters('sizeOfDiskInGB')]"
+          },
+          "vmNamePrefix": {
+            "value" : "[parameters('dcVMNamePrefix')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
+          },
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-dc')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofdcVms')]"
+          }
+        }
       }
     }
   ]
