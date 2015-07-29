@@ -70,7 +70,6 @@
     },
     "webVMNamePrefix": {
       "type": "string",
-      "defaultValue": "dev-web-vm-0",
       "metadata": {
         "description": "The web VM computer name. 14 characters are available to use."
       }
@@ -84,12 +83,11 @@
     },
     "sqlVMNamePrefix": {
       "type": "string",
-      "defaultValue": "dev-sql-vm-0",
       "metadata": {
         "description": "The sql VM computer name. 14 characters are available to use."
       }
     },
-    "numberofSqlVMs": {
+    "numberofSqlVms": {
       "type": "int",
       "defaultValue": 1,
       "metadata": {
@@ -98,12 +96,11 @@
     },
     "utilVMNamePrefix": {
       "type": "string",
-      "defaultValue": "dev-utl-vm-0",
       "metadata": {
         "description": "The sql VM computer name. 14 characters are available to use."
       }
     },
-    "numberofUtilVMs": {
+    "numberofUtilVms": {
       "type": "int",
       "defaultValue": 1,
       "metadata": {
