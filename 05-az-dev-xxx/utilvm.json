@@ -93,7 +93,7 @@
           "image": {
             "publisher": "[parameters('machineSettings').os.imagePublisher]",
             "offer": "[parameters('machineSettings').os.imageOffer]",
-            "sku": "[parameters('machineSettings').os.imageSku]",
+            "sku": "2012-R2-Datacenter",
             "version": "[parameters('machineSettings').os.version]"
           },
           "uriprefix": "[concat('http://', parameters('storageSettings').storageAccountName, '.blob.core.windows.net/vhds/', variables('systemDiskName'))]"
