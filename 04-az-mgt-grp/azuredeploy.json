@@ -133,7 +133,8 @@
 
     "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/sharedresources.json",
     "dcvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/dcvm.json",
-    "fsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/fsvm.json"
+    "fsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/fsvm.json",
+    "chefvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/chefvm.json"
   },
   "resources": [
     {
