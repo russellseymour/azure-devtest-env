@@ -58,10 +58,16 @@
         "description": "The app subnet name."
       }
     },
-    "vmName": {
+    "vmNamePrefix": {
       "type": "string",
       "metadata": {
         "description": "The computer name of the vm."
+      }
+    },
+    "numberofVms": {
+      "type": "int",
+      "metadata": {
+        "description": "The number of vms required"
       }
     }
   },
@@ -72,7 +78,7 @@
     "storageAccountType": "Standard_LRS",
     "publicIPAddressName": "[concat(resourceGroup().name,'-pip')]",
     "publicIPAddressType": "Dynamic",
-    "OSDiskName": "[parameters('vmName')]",
+    "OSDiskName": "[parameters('vmNamePrefix')]",
     "vmSize": "Standard_A2",
     "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/',parameters('appSubnetName'))]"
@@ -90,22 +96,30 @@
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[variables('publicIPAddressName')]",
+      "name": "[concat(variables('publicIPAddressName'),copyIndex(1))]",
       "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "vms",
+        "count": "[parameters('numberofVms')]"
+      },
       "properties": {
         "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
         "dnsSettings": {
-          "domainNameLabel": "[parameters('dnsNameForPublicIP')]"
+          "domainNameLabel": "[concat(parameters('dnsNameForPublicIP'),copyIndex(1))]"
         }
       }
     },
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('nicName')]",
+      "name": "[concat(variables('nicName'), copyIndex(1))]",
       "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "vms",
+        "count": "[parameters('numberofVms')]"
+      },
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]"
+        "[concat('Microsoft.Network/publicIPAddresses/', concat(variables('publicIPAddressName'),copyIndex(1)))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -114,7 +128,7 @@
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('publicIPAddressName'),copyIndex(1)))]"
               },
               "subnet": {
                 "id": "[variables('subnetRef')]"
@@ -127,18 +141,22 @@
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('vmName')]",
+      "name": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
       "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "vms",
+        "count": "[parameters('numberofVms')]"
+      },
       "dependsOn": [
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+        "[concat('Microsoft.Network/networkInterfaces/', concat(variables('nicName'),copyIndex(1)))]"
       ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "[variables('vmSize')]"
         },
         "osProfile": {
-          "computername": "[parameters('vmName')]",
+          "computername": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -152,7 +170,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds','/',variables('OSDiskName'),'.vhd')]"
+              "uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds','/',variables('OSDiskName'),copyIndex(1),'.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -161,7 +179,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicName'),copyIndex(1)))]"
             }
           ]
         }
