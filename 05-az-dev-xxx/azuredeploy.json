@@ -302,7 +302,7 @@
             "value" : "[parameters('sizeOfDiskInGB')]"
           },
           "vmNamePrefix": {
-            "value" : "[parameters('utilvmNamePrefix')]"
+            "value" : "[parameters('utilVMNamePrefix')]"
           },
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
@@ -311,7 +311,7 @@
             "value" : "[concat(variables('commonSettings').prefix,'-util')]"
           },
           "numberofVms": {
-            "value" : "[parameters('numberofUtilVMs')]"
+            "value" : "[parameters('numberofUtilVms')]"
           }
         }
       }
