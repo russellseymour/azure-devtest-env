@@ -71,8 +71,12 @@
     "availabilitySetName": "[concat(resourceGroup().name,'-as')]",
     "numberOfInstances": "[parameters('numberofVms')]",
 
-    "modulesUrl": "https://github.com/Azure/azure-quickstart-templates/raw/master/dsc-extension-iis-server-windows-vm/ContosoWebsite.ps1.zip",
-    "configurationFunction": "ContosoWebsite.ps1\\ContosoWebsite"
+    "modulesUrl1": "https://github.com/tcsatheesh/azure-devtest-env/raw/master/03-az-dns-srv/ConfigureDnsPrimaryZone.zip",
+    "configurationFunction1": "ConfigureDnsPrimaryZone.ps1\\ConfigureDNSPrimaryZone",
+
+    "modulesUrl2": "https://github.com/tcsatheesh/azure-devtest-env/raw/master/03-az-dns-srv/ConfigureDnsSecondaryZone.ps1.zip",
+    "configurationFunction2": "ConfigureDnsSecondaryZone.ps1\\ConfigureDNSSecondaryZone",
+    "vmExtensionName": "dscExtension"
   },
   "resources": [
     {
