@@ -71,11 +71,11 @@
     "availabilitySetName": "[concat(resourceGroup().name,'-as')]",
     "numberOfInstances": "[parameters('numberofVms')]",
 
-    "modulesUrl1": "https://github.com/tcsatheesh/azure-devtest-env/raw/master/03-az-dns-srv/ConfigureDnsPrimaryZone.zip",
-    "configurationFunction1": "ConfigureDnsPrimaryZone.ps1\\ConfigureDNSPrimaryZone",
+    "modulesUrl1": "https://github.com/tcsatheesh/azure-devtest-env/raw/master/03-az-dns-srv/ConfigureDnsZone.ps1.zip",
+    "configurationFunction1": "ConfigureDnsZone.ps1\\ConfigureDNSPrimaryZone",
 
-    "modulesUrl2": "https://github.com/tcsatheesh/azure-devtest-env/raw/master/03-az-dns-srv/ConfigureDnsSecondaryZone.ps1.zip",
-    "configurationFunction2": "ConfigureDnsSecondaryZone.ps1\\ConfigureDNSSecondaryZone",
+    "modulesUrl2": "https://github.com/tcsatheesh/azure-devtest-env/raw/master/03-az-dns-srv/ConfigureDnsZone.ps1.zip",
+    "configurationFunction2": "ConfigureDnsZone.ps1\\ConfigureDNSSecondaryZone",
     "vmExtensionName": "dscExtension"
   },
   "resources": [
@@ -198,7 +198,8 @@
         "apiVersion": "2015-05-01-preview",
         "location": "[resourceGroup().location]",
         "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'),'2')]"
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'),'2')]",
+            "[concat('Microsoft.Compute/virtualMachines/extensions/', parameters('vmNamePrefix'),'2', variables('vmExtensionName'))]"
         ],
         "properties": {
             "publisher": "Microsoft.Powershell",
