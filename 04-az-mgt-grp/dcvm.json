@@ -80,11 +80,7 @@
         },
         "app": {
           "name": "[concat(parameters('prefix'),'-nic-app-0')]",
-          "subnetRef": "[parameters('networkSettings').subnetRef.app]",
-          "dns": {
-            "server1": "parameters('networkSettings').dns.server1",
-            "server2": "parameters('networkSettings').dns.server2"
-          }
+          "subnetRef": "[parameters('networkSettings').subnetRef.app]"
         }
       },
       "disk": {
@@ -230,7 +226,7 @@
       "location": "[parameters('commonSettings').location]",
       "apiVersion": "2015-05-01-preview",
       "copy": {
-        "name": "appVMs",
+        "name": "dcVMs",
         "count": "[variables('vmSettings').numberofVms]"
       },
       "dependsOn": [
