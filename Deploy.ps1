@@ -10,7 +10,7 @@ New-AzureResourceGroup -Name "az-wrk-stn" -Location "North Europe" `
 -TemplateFile ".\02-az-wrk-stn\azuredeploy.json" `
 -TemplateParameterFile ".\02-az-wrk-stn\azuredeploy.parameters.json" `
  -devVNETResourceGroup "az-dev-net" -devVNETVirtualNetworkName "az-dev-net" `
--appSubnetName "subnetFrontEnd" -adminPassword $secPwd  `
+-appSubnetName "FrontEndSubnet" -adminPassword $secPwd  `
 -Verbose -Force
 
 #Create the dns server resource group
