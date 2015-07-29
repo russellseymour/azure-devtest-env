@@ -167,7 +167,7 @@
         "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]"
       ],
       "tags": {
-        "displayName": "devsql"
+        "displayName": "devutil"
       },
       "properties": {
         "hardwareProfile": {
