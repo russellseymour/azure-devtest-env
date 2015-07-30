@@ -9,12 +9,6 @@
         "description": "Type of VM. Something that supports atleast 2 nics is required."
       }
     },
-    "sizeOfDiskInGB": {
-      "type": "string",
-      "metadata": {
-        "description": "Size of the empty data disk in GB"
-      }
-    },
     "commonSettings": {
       "type": "object",
       "metadata": {
@@ -196,18 +190,7 @@
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
-          },
-          "dataDisks": [
-            {
-              "name": "[variables('dataDiskName')]",
-              "diskSizeGB": "[variables('vmSettings').disk.datadisk.size]",
-              "lun": "[variables('vmSettings').disk.datadisk.lun]",
-              "vhd": {
-                "uri": "[concat(variables('vmSettings').disk.datadisk.uriprefix, copyIndex(1), '.vhd')]"
-              },
-              "createOption": "Empty"
-            }
-          ]
+          }
         },
         "networkProfile": {
           "networkInterfaces": [
