@@ -98,14 +98,27 @@
         "esVMNamePrefix": {
             "type": "string",
             "metadata": {
-                "description": "The chef VM computer name. 14 characters are available to use."
+                "description": "The es VM computer name. 14 characters are available to use."
             }
         },
         "numberofesVms": {
             "type": "int",
             "defaultValue": 2,
             "metadata": {
-                "description": "the number of chef vms"
+                "description": "the number of es vms"
+            }
+        },
+        "monVMNamePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The monitoring VM computer name. 14 characters are available to use."
+            }
+        },
+        "numberofmonVms": {
+            "type": "int",
+            "defaultValue": 2,
+            "metadata": {
+                "description": "the number of monitoring vms"
             }
         }
     },
@@ -146,7 +159,8 @@
         "dcvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/dcvm.json",
         "fsvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/fsvm.json",
         "chefvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/chefvm.json",
-        "esvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/esvm.json"
+        "esvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/esvm.json",
+        "monvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/monvm.json"
     },
     "resources": [
         {
@@ -344,6 +358,53 @@
                     },
                     "machineSettings": {
                         "value": "[variables('linuxMachineSettings')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "sizeOfDiskInGB": {
+                        "value": "[parameters('sizeOfDiskInGB')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "monvm-resources",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('monvmTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmNamePrefix": {
+                        "value": "[parameters('monVMNamePrefix')]"
+                    },
+                    "prefix": {
+                        "value": "[concat(variables('commonSettings').prefix,'-mon')]"
+                    },
+                    "numberofVms": {
+                        "value": "[parameters('numberoffsVms')]"
+                    },
+                    "commonSettings": {
+                        "value": "[variables('commonSettings')]"
+                    },
+                    "storageSettings": {
+                        "value": "[variables('storageSettings')]"
+                    },
+                    "networkSettings": {
+                        "value": "[variables('networkSettings')]"
+                    },
+                    "machineSettings": {
+                        "value": "[variables('machineSettings')]"
                     },
                     "adminPassword": {
                         "value": "[parameters('adminPassword')]"
