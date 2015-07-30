@@ -221,6 +221,7 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.mgmt.name, copyIndex(1)))]"
             }
           ]
+       }
       },
       "resources": [
          {
@@ -244,7 +245,6 @@
             }
         }
       ]
-      }
     }
   ]
 }
