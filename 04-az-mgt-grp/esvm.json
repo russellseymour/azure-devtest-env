@@ -82,8 +82,8 @@
                     "name": "[concat(parameters('prefix'),'-nic-app-0')]",
                     "subnetRef": "[parameters('networkSettings').subnetRef.app]",
                     "dnsServers": [
-                        "[parameters('networkSettings').dns.server1]",
-                        "[parameters('networkSettings').dns.server2]"
+                        "10.208.2.4",
+                        "10.208.2.5"
                     ]
                 }
             },
