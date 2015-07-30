@@ -71,7 +71,7 @@
     "availabilitySetName": "[concat(resourceGroup().name,'-as')]",
     "numberOfInstances": "[parameters('numberofVms')]",
 
-    "modulesUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigurePrimaryDnsZone.ps1.zip",
+    "modulesUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigureDnsZone.ps1.zip",
     "configurationFunction": "ConfigureDnsZone.ps1\\ConfigureDNSZones",
 
     "privateIPAddress": [
