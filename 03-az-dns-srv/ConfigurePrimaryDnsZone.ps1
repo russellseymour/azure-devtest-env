@@ -27,9 +27,5 @@ Configuration ConfigurePrimaryZone
         GetScript               = { <# This must return a hash table #> }
         DependsOn               = "[WindowsFeature]DNSTools"
     }
-    LocalConfigurationManager
-    {
-        RebootNodeIfNeeded = $true
-    }
   }
 }
