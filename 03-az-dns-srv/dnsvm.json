@@ -229,6 +229,9 @@
             "name": "[concat(parameters('vmNamePrefix'),copyIndex(1),'/dscExtension')]",
             "apiVersion": "2015-05-01-preview",
             "location": "[parameters('commonSettings').location]",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', concat(variables('vmSettings').name, copyIndex(1)))]"
+            ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
                 "type": "DSC",
