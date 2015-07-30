@@ -1,302 +1,361 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": {
-    "devVNETResourceGroup": {
-      "type": "string",
-      "metadata": {
-        "description": "The devVNET resource group."
-      }
-    },
-    "devVNETVirtualNetworkName": {
-      "type": "string",
-      "metadata": {
-        "description": "The devVNET network name."
-      }
-    },
-    "storageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
-      }
-    },
-    "storageType": {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "allowedValues": [
-        "Standard_LRS",
-        "Standard_GRS",
-        "Standard_ZRS"
-      ]
-    },
-    "adminUserName": {
-      "type": "string",
-      "defaultValue": "domadm"
-    },
-    "adminPassword": {
-      "type": "securestring"
-    },
-    "prefix" :{
-      "type":"string",
-      "defaultValue" : "[resourceGroup().name]",
-      "metadata" : {
-        "description" : "A prefix used for all resources in this resource group except the computer name"
-      }
-    },
-    "vmSize": {
-      "type": "string",
-      "defaultValue": "Standard_A2",
-      "metadata": {
-        "description": "Type of VM. Something that supports atleast 2 nics is required."
-      }
-    },
-    "sizeOfDiskInGB": {
-      "type": "string",
-      "metadata": {
-        "description": "Size of the empty data disk in GB"
-      }
-    },
-    "dcVMNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The dc VM computer name. 14 characters are available to use."
-      }
-    },
-    "numberofdcVms": {
-      "type": "int",
-      "defaultValue": 2,
-      "metadata": {
-        "description": "the number of dc vms"
-      }
-    },
-    "fsVMNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The fs VM computer name. 14 characters are available to use."
-      }
-    },
-    "numberoffsVms": {
-      "type": "int",
-      "defaultValue": 1,
-      "metadata": {
-        "description": "the number of fs vms"
-      }
-    },
-    "chefVMNamePrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The chef VM computer name. 14 characters are available to use."
-      }
-    },
-    "numberofchefVms": {
-      "type": "int",
-      "defaultValue": 1,
-      "metadata": {
-        "description": "the number of chef vms"
-      }
-    }
-  },
-  "variables": {
-    "commonSettings": {
-      "location": "[resourceGroup().location]",
-      "prefix": "[parameters('prefix')]",
-      "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]"
-    },
-
-    "storageSettings": {
-      "storageAccountName": "[parameters('storageAccountName')]",
-      "storageType": "[parameters('storageType')]"
-    },
-    "networkSettings": {
-      "subnetRef": {
-        "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
-      }
-    },
-    "machineSettings": {
-      "adminUserName": "[parameters('adminUserName')]",
-      "os": {
-        "imagePublisher": "MicrosoftWindowsServer",
-        "imageOffer": "WindowsServer",
-        "imageSku": "2012-R2-Datacenter",
-        "version": "latest"
-      }
-    },
-    "linuxMachineSettings": {
-      "adminUserName": "[parameters('adminUserName')]",
-      "os": {
-        "imagePublisher": "Canonical",
-        "imageOffer": "UbuntuServer",
-        "imageSku": "14.04.2-LTS",
-        "version": "latest"
-      }
-    },
-
-    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/sharedresources.json",
-    "dcvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/dcvm.json",
-    "fsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/fsvm.json",
-    "chefvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/chefvm.json"
-  },
-  "resources": [
-    {
-      "name": "shared-resources",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('sharedTemplateUrl')]",
-          "contentVersion": "1.0.0.0"
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "devVNETResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "The devVNET resource group."
+            }
         },
-        "parameters": {
-          "commonSettings": {
-            "value": "[variables('commonSettings')]"
-          },
-          "storageSettings": {
-            "value": "[variables('storageSettings')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "dcvm-resources",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('dcvmTemplateUrl')]",
-          "contentVersion": "1.0.0.0"
+        "devVNETVirtualNetworkName": {
+            "type": "string",
+            "metadata": {
+                "description": "The devVNET network name."
+            }
         },
-        "parameters": {
-          "vmNamePrefix": {
-            "value" : "[parameters('dcVMNamePrefix')]"
-          },
-          "prefix": {
-            "value" : "[concat(variables('commonSettings').prefix,'-dc')]"
-          },
-          "numberofVms": {
-            "value" : "[parameters('numberofdcVms')]"
-          },
-          "commonSettings": {
-            "value": "[variables('commonSettings')]"
-          },
-          "storageSettings": {
-            "value": "[variables('storageSettings')]"
-          },
-          "networkSettings": {
-            "value": "[variables('networkSettings')]"
-          },
-          "machineSettings": {
-            "value": "[variables('machineSettings')]"
-          },
-          "adminPassword" : {
-            "value": "[parameters('adminPassword')]"
-          },
-          "sizeOfDiskInGB" : {
-            "value" : "[parameters('sizeOfDiskInGB')]"
-          },
-          "vmSize" : {
-            "value" : "[parameters('vmSize')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "fsvm-resources",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('fsvmTemplateUrl')]",
-          "contentVersion": "1.0.0.0"
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
+            }
         },
-        "parameters": {
-          "vmNamePrefix": {
-            "value" : "[parameters('fsVMNamePrefix')]"
-          },
-          "prefix": {
-            "value" : "[concat(variables('commonSettings').prefix,'-fs')]"
-          },
-          "numberofVms": {
-            "value" : "[parameters('numberoffsVms')]"
-          },
-          "commonSettings": {
-            "value": "[variables('commonSettings')]"
-          },
-          "storageSettings": {
-            "value": "[variables('storageSettings')]"
-          },
-          "networkSettings": {
-            "value": "[variables('networkSettings')]"
-          },
-          "machineSettings": {
-            "value": "[variables('machineSettings')]"
-          },
-          "adminPassword" : {
-            "value": "[parameters('adminPassword')]"
-          },
-          "sizeOfDiskInGB" : {
-            "value" : "[parameters('sizeOfDiskInGB')]"
-          },
-          "vmSize" : {
-            "value" : "[parameters('vmSize')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "chefvm-resources",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('chefvmTemplateUrl')]",
-          "contentVersion": "1.0.0.0"
+        "storageType": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_ZRS"
+            ]
         },
-        "parameters": {
-          "vmNamePrefix": {
-            "value" : "[parameters('chefVMNamePrefix')]"
-          },
-          "prefix": {
-            "value" : "[concat(variables('commonSettings').prefix,'-chef')]"
-          },
-          "numberofVms": {
-            "value" : "[parameters('numberofchefVms')]"
-          },
-          "commonSettings": {
-            "value": "[variables('commonSettings')]"
-          },
-          "storageSettings": {
-            "value": "[variables('storageSettings')]"
-          },
-          "networkSettings": {
-            "value": "[variables('networkSettings')]"
-          },
-          "machineSettings": {
-            "value": "[variables('linuxMachineSettings')]"
-          },
-          "adminPassword" : {
-            "value": "[parameters('adminPassword')]"
-          },
-          "sizeOfDiskInGB" : {
-            "value" : "[parameters('sizeOfDiskInGB')]"
-          },
-          "vmSize" : {
-            "value" : "[parameters('vmSize')]"
-          }
+        "adminUserName": {
+            "type": "string",
+            "defaultValue": "domadm"
+        },
+        "adminPassword": {
+            "type": "securestring"
+        },
+        "prefix": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "A prefix used for all resources in this resource group except the computer name"
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_A2",
+            "metadata": {
+                "description": "Type of VM. Something that supports atleast 2 nics is required."
+            }
+        },
+        "sizeOfDiskInGB": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of the empty data disk in GB"
+            }
+        },
+        "dcVMNamePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The dc VM computer name. 14 characters are available to use."
+            }
+        },
+        "numberofdcVms": {
+            "type": "int",
+            "defaultValue": 2,
+            "metadata": {
+                "description": "the number of dc vms"
+            }
+        },
+        "fsVMNamePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The fs VM computer name. 14 characters are available to use."
+            }
+        },
+        "numberoffsVms": {
+            "type": "int",
+            "defaultValue": 1,
+            "metadata": {
+                "description": "the number of fs vms"
+            }
+        },
+        "chefVMNamePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The chef VM computer name. 14 characters are available to use."
+            }
+        },
+        "numberofchefVms": {
+            "type": "int",
+            "defaultValue": 1,
+            "metadata": {
+                "description": "the number of chef vms"
+            }
+        },
+        "esVMNamePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The chef VM computer name. 14 characters are available to use."
+            }
+        },
+        "numberofesVms": {
+            "type": "int",
+            "defaultValue": 2,
+            "metadata": {
+                "description": "the number of chef vms"
+            }
         }
-      }
-    }
-  ]
+    },
+    "variables": {
+        "commonSettings": {
+            "location": "[resourceGroup().location]",
+            "prefix": "[parameters('prefix')]",
+            "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]"
+        },
+        "storageSettings": {
+            "storageAccountName": "[parameters('storageAccountName')]",
+            "storageType": "[parameters('storageType')]"
+        },
+        "networkSettings": {
+            "subnetRef": {
+                "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
+            }
+        },
+        "machineSettings": {
+            "adminUserName": "[parameters('adminUserName')]",
+            "os": {
+                "imagePublisher": "MicrosoftWindowsServer",
+                "imageOffer": "WindowsServer",
+                "imageSku": "2012-R2-Datacenter",
+                "version": "latest"
+            }
+        },
+        "linuxMachineSettings": {
+            "adminUserName": "[parameters('adminUserName')]",
+            "os": {
+                "imagePublisher": "Canonical",
+                "imageOffer": "UbuntuServer",
+                "imageSku": "14.04.2-LTS",
+                "version": "latest"
+            }
+        },
+        "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/sharedresources.json",
+        "dcvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/dcvm.json",
+        "fsvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/fsvm.json",
+        "chefvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/chefvm.json",
+        "esvmTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/04-az-mgt-grp/esvm.json"
+    },
+    "resources": [
+        {
+            "name": "shared-resources",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sharedTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "commonSettings": {
+                        "value": "[variables('commonSettings')]"
+                    },
+                    "storageSettings": {
+                        "value": "[variables('storageSettings')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "dcvm-resources",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('dcvmTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmNamePrefix": {
+                        "value": "[parameters('dcVMNamePrefix')]"
+                    },
+                    "prefix": {
+                        "value": "[concat(variables('commonSettings').prefix,'-dc')]"
+                    },
+                    "numberofVms": {
+                        "value": "[parameters('numberofdcVms')]"
+                    },
+                    "commonSettings": {
+                        "value": "[variables('commonSettings')]"
+                    },
+                    "storageSettings": {
+                        "value": "[variables('storageSettings')]"
+                    },
+                    "networkSettings": {
+                        "value": "[variables('networkSettings')]"
+                    },
+                    "machineSettings": {
+                        "value": "[variables('machineSettings')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "sizeOfDiskInGB": {
+                        "value": "[parameters('sizeOfDiskInGB')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "fsvm-resources",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('fsvmTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmNamePrefix": {
+                        "value": "[parameters('fsVMNamePrefix')]"
+                    },
+                    "prefix": {
+                        "value": "[concat(variables('commonSettings').prefix,'-fs')]"
+                    },
+                    "numberofVms": {
+                        "value": "[parameters('numberoffsVms')]"
+                    },
+                    "commonSettings": {
+                        "value": "[variables('commonSettings')]"
+                    },
+                    "storageSettings": {
+                        "value": "[variables('storageSettings')]"
+                    },
+                    "networkSettings": {
+                        "value": "[variables('networkSettings')]"
+                    },
+                    "machineSettings": {
+                        "value": "[variables('machineSettings')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "sizeOfDiskInGB": {
+                        "value": "[parameters('sizeOfDiskInGB')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "chefvm-resources",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('chefvmTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmNamePrefix": {
+                        "value": "[parameters('chefVMNamePrefix')]"
+                    },
+                    "prefix": {
+                        "value": "[concat(variables('commonSettings').prefix,'-chef')]"
+                    },
+                    "numberofVms": {
+                        "value": "[parameters('numberofchefVms')]"
+                    },
+                    "commonSettings": {
+                        "value": "[variables('commonSettings')]"
+                    },
+                    "storageSettings": {
+                        "value": "[variables('storageSettings')]"
+                    },
+                    "networkSettings": {
+                        "value": "[variables('networkSettings')]"
+                    },
+                    "machineSettings": {
+                        "value": "[variables('linuxMachineSettings')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "sizeOfDiskInGB": {
+                        "value": "[parameters('sizeOfDiskInGB')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "esvm-resources",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "dependsOn": [
+                "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('esvmTemplateUrl')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vmNamePrefix": {
+                        "value": "[parameters('esVMNamePrefix')]"
+                    },
+                    "prefix": {
+                        "value": "[concat(variables('commonSettings').prefix,'-es')]"
+                    },
+                    "numberofVms": {
+                        "value": "[parameters('numberofesVms')]"
+                    },
+                    "commonSettings": {
+                        "value": "[variables('commonSettings')]"
+                    },
+                    "storageSettings": {
+                        "value": "[variables('storageSettings')]"
+                    },
+                    "networkSettings": {
+                        "value": "[variables('networkSettings')]"
+                    },
+                    "machineSettings": {
+                        "value": "[variables('linuxMachineSettings')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "sizeOfDiskInGB": {
+                        "value": "[parameters('sizeOfDiskInGB')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    }
+                }
+            }
+        }
+    ]
 }

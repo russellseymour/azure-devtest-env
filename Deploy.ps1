@@ -49,6 +49,7 @@ New-AzureResourceGroup -Name $mgtResourceGroup -Location $location `
   -dcVMNamePrefix "devdc-0" -numberofdcVms 2 `
   -fsVMNamePrefix "fs-0" -numberoffsVms 1 `
   -chefVMNamePrefix "chef-0" -numberofchefVms 1 `
+  -esVMNamePrefix "es-0" -numberofesVms 2 `
   -sizeOfDiskInGB 40 `
  -adminPassword $secPwd  -Verbose -Force
 
