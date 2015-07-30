@@ -106,9 +106,6 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('vmSettings').nic.app.name, copyIndex(1))]",
       "location": "[parameters('commonSettings').location]",
-      "dependsOn": [
-          "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
-      ],
       "copy": {
         "name": "appNics",
         "count": "[variables('vmSettings').numberofVms]"
