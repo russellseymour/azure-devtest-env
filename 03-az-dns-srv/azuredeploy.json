@@ -189,6 +189,9 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
           "vmName": {
             "value" : "dnsServer-01"
           },
@@ -215,6 +218,9 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
+            "commonSettings": {
+              "value": "[variables('commonSettings')]"
+            },
           "vmName": {
             "value" : "dnsServer-02"
           },
