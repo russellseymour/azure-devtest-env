@@ -77,10 +77,6 @@
                 "mgmt": {
                     "name": "[concat(parameters('prefix'),'-nic-mgt-0')]",
                     "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
-                },
-                "app": {
-                    "name": "[concat(parameters('prefix'),'-nic-app-0')]",
-                    "subnetRef": "[parameters('networkSettings').subnetRef.app]"
                 }
             },
             "disk": {
@@ -108,45 +104,11 @@
         {
             "apiVersion": "2015-05-01-preview",
             "type": "Microsoft.Network/networkInterfaces",
-            "name": "[concat(variables('vmSettings').nic.app.name, copyIndex(1))]",
+            "name": "[concat(variables('vmSettings').nic.mgmt.name, copyIndex(1))]",
             "location": "[parameters('commonSettings').location]",
             "dependsOn": [
                 "[concat('Microsoft.Network/loadBalancers/', variables('loadBalancerName'))]"
             ],
-            "copy": {
-                "name": "appNics",
-                "count": "[variables('vmSettings').numberofVms]"
-            },
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[variables('vmSettings').nic.app.subnetRef]"
-                            },
-                            "loadBalancerBackendAddressPools": [
-                                {
-                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
-                                }
-                            ]
-                        }
-                    }
-                ],
-                "dnsSettings": {
-                    "dnsServers": [
-                        "10.208.2.4",
-                        "10.208.2.5"
-                    ]
-                }
-            }
-        },
-        {
-            "apiVersion": "2015-05-01-preview",
-            "type": "Microsoft.Network/networkInterfaces",
-            "name": "[concat(variables('vmSettings').nic.mgmt.name, copyIndex(1))]",
-            "location": "[parameters('commonSettings').location]",
             "copy": {
                 "name": "mgmtNics",
                 "count": "[variables('vmSettings').numberofVms]"
@@ -159,7 +121,12 @@
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
                                 "id": "[variables('vmSettings').nic.mgmt.subnetRef]"
-                            }
+                            },
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[concat(resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), '/backendAddressPools/loadBalancerBackEnd')]"
+                                }
+                            ]
                         }
                     }
                 ]
@@ -176,7 +143,7 @@
                         "name": "loadBalancerFrontEnd",
                         "properties": {
                             "subnet": {
-                                "id": "[parameters('networkSettings').subnetRef.frontEnd]"
+                                "id": "[parameters('networkSettings').subnetRef.mgmt]"
                             }
                         }
                     }
@@ -232,11 +199,10 @@
             "location": "[parameters('commonSettings').location]",
             "apiVersion": "2015-05-01-preview",
             "copy": {
-                "name": "appVMs",
+                "name": "esVMs",
                 "count": "[variables('vmSettings').numberofVms]"
             },
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.app.name,copyIndex(1))]",
                 "[concat('Microsoft.Network/networkInterfaces/', variables('vmSettings').nic.mgmt.name,copyIndex(1))]",
                 "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]"
             ],
@@ -287,12 +253,6 @@
                         {
                             "properties": {
                                 "primary": true
-                            },
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.app.name, copyIndex(1)))]"
-                        },
-                        {
-                            "properties": {
-                                "primary": false
                             },
                             "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.mgmt.name, copyIndex(1)))]"
                         }
