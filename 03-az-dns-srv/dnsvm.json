@@ -56,6 +56,24 @@
       "metadata": {
         "Description": "Prefix for the other resources except computerName."
       }
+  },
+  "privateIPAddress": {
+        "type": "string",
+        "metadata": {
+            "description": "Static Ip address for this dns server"
+        }
+    },
+  "modulesUrl": {
+        "type": "string",
+        "metadata": {
+            "description": "URL for the DSC configuration module. NOTE: Can be a Github url (raw) to the zip file"
+        }
+    },
+    "configurationFunction": {
+        "type": "string",
+        "metadata": {
+            "description": "DSC configuration function to call"
+        }
     }
   },
   "variables": {
@@ -72,11 +90,7 @@
         },
         "app": {
           "name": "[concat(parameters('prefix'),'-nic-app-0')]",
-          "subnetRef": "[parameters('networkSettings').subnetRef.app]",
-          "dns": [
-            "[parameters('networkSettings').dns.server1]",
-            "[parameters('networkSettings').dns.server2]"
-          ]
+          "subnetRef": "[parameters('networkSettings').subnetRef.app]"
         }
       },
       "disk": {
@@ -109,7 +123,7 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAddress": "[variables('vmSettings').nic.app.dns[copyIndex()]]",
+              "privateIPAddress": "[parameters('privateIPAddress')]",
               "subnet": {
                 "id": "[variables('vmSettings').nic.app.subnetRef]"
               }
@@ -207,7 +221,29 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('vmSettings').nic.mgmt.name, copyIndex(1)))]"
             }
           ]
+      },
+      "resources": [
+         {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('vmNamePrefix'),copyIndex(1),'/dscExtension')]",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[parameters('commonSettings').location]",
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "1.9",
+                "settings": {
+                    "ModulesUrl": "[parameters('modulesUrl')]",
+                    "SasToken": "",
+                    "ConfigurationFunction": "[parameters('configurationFunction')]",
+                    "Properties": {
+                        "MachineName": "[concat(parameters('vmNamePrefix'),copyIndex(1))]"
+                    }
+                },
+                "protectedSettings": null
+            }
         }
+      ]
       }
     }
   ]

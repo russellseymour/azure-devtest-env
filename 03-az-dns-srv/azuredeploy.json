@@ -50,15 +50,15 @@
         "description": "Type of VM. Something that supports atleast 2 nics is required."
       }
     },
-    "dnsVMNamePrefix": {
+    "primarydnsVMNamePrefix": {
       "type": "string",
       "metadata": {
         "description": "The dc VM computer name. 14 characters are available to use."
       }
     },
-    "numberofdnsVms": {
+    "numberofprimarydnsVms": {
       "type": "int",
-      "defaultValue": 2,
+      "defaultValue": 1,
       "metadata": {
         "description": "the number of dc vms"
       }
@@ -69,6 +69,19 @@
        "description": "The ip address of the dns server for the .local prefix"
      }
    },
+   "secondarydnsVMNamePrefix": {
+     "type": "string",
+     "metadata": {
+       "description": "The dc VM computer name. 14 characters are available to use."
+     }
+   },
+   "numberofsecondarydnsVms": {
+     "type": "int",
+     "defaultValue": 1,
+     "metadata": {
+       "description": "the number of dc vms"
+     }
+  },
    "dnsServer02": {
      "type": "string",
      "metadata": {
@@ -91,10 +104,6 @@
       "subnetRef": {
         "app": "[concat(variables('commonSettings').vnetID,'/subnets/DnsSubnet')]",
         "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
-      },
-      "dns": {
-        "server1": "[parameters('dnsServer01')]",
-        "server2": "[parameters('dnsServer02')]"
       }
     },
     "machineSettings": {
@@ -107,8 +116,7 @@
       }
     },
     "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/sharedresources.json",
-    "dnsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/dnsvm.json",
-    "configurednsTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/configuredns.json"
+    "dnsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/dnsvm.json"
   },
   "resources": [
     {
@@ -132,7 +140,7 @@
       }
     },
     {
-      "name": "dnsvm-resources",
+      "name": "primarydns-resources",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
@@ -146,13 +154,13 @@
         },
         "parameters": {
           "vmNamePrefix": {
-            "value" : "[parameters('dnsVMNamePrefix')]"
+            "value" : "[parameters('primarydnsVMNamePrefix')]"
           },
           "prefix": {
-            "value" : "[concat(variables('commonSettings').prefix,'-dns')]"
+            "value" : "[concat(variables('commonSettings').prefix,'-primarydns')]"
           },
           "numberofVms": {
-            "value" : "[parameters('numberofdnsVms')]"
+            "value" : "[parameters('numberofprimarydnsVms')]"
           },
           "commonSettings": {
             "value": "[variables('commonSettings')]"
@@ -171,29 +179,9 @@
           },
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "configureprimarydns-resources",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'dnsvm-resources')]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('configurednsTemplateUrl')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "commonSettings": {
-            "value": "[variables('commonSettings')]"
           },
-          "vmName": {
-            "value" : "dnsServer-01"
+          "privateIPAddress": {
+              "value": "[parameters('dnsServer01')]"
           },
           "modulesUrl": {
             "value" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigurePrimaryDnsZone.ps1.zip"
@@ -203,26 +191,50 @@
           }
         }
       }
-    },
+  },
     {
-      "name": "configuresecondardns-resources",
+      "name": "secondarydns-resources",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
-        "[concat('Microsoft.Resources/deployments/', 'configureprimarydns-resources')]"
+        "[concat('Microsoft.Resources/deployments/', 'primarydns-resources')]"
       ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('configurednsTemplateUrl')]",
+          "uri": "[variables('dnsvmTemplateUrl')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-            "commonSettings": {
-              "value": "[variables('commonSettings')]"
-            },
-          "vmName": {
-            "value" : "dnsServer-02"
+          "vmNamePrefix": {
+            "value" : "[parameters('secondarydnsVMNamePrefix')]"
+          },
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-secondarydns')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofsecondarydnsVms')]"
+          },
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
+          },
+          "privateIPAddress": {
+              "value": "[parameters('dnsServer02')]"
           },
           "modulesUrl": {
             "value" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigureSecondaryDnsZone.ps1.zip"

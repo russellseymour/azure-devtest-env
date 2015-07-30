@@ -33,7 +33,8 @@ New-AzureResourceGroup -Name $dnsResourceGroup -Location $location `
 -devVNETVirtualNetworkName $devVNETVirtualNetworkName `
 -storageAccountNameFromTemplate $dnsStorageAccountName `
 -dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
--dnsVMNamePrefix "dnssrv-0" -numberofdnsVms 2 `
+-primarydnsVMNamePrefix "dnssrv-1" -numberofprimarydnsVms 1 `
+-secondarydnsVMNamePrefix "dnssrv-2" -numberofsecondarydnsVms 1 `
 -adminPassword $secPwd  -Verbose -Force
 
 #Create the management resource group
