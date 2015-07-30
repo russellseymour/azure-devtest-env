@@ -71,14 +71,8 @@
     "availabilitySetName": "[concat(resourceGroup().name,'-as')]",
     "numberOfInstances": "[parameters('numberofVms')]",
 
-    "modulesUrl": [
-      "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigurePrimaryDnsZone.ps1.zip",
-      "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigureSecondaryDnsZone.ps1.zip"
-    ],
-    "configurationFunction": [
-      "ConfigureDnsZone.ps1\\ConfigureDNSPrimaryZone",
-      "ConfigureDnsZone.ps1\\ConfigureDNSSecondaryZone"
-    ],
+    "modulesUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigurePrimaryDnsZone.ps1.zip",
+    "configurationFunction": "ConfigureDnsZone.ps1\\ConfigureDNSZones",
 
     "privateIPAddress": [
         "10.208.2.4",
@@ -192,11 +186,8 @@
                     "type": "DSC",
                     "typeHandlerVersion": "1.9",
                     "settings": {
-                        "modulesUrl": "[variables('modulesUrl')[copyIndex()]]",
-                        "configurationFunction": "[variables('configurationFunction')[copyIndex()]]",
-                        "Properties": {
-                            "MachineName": "concat([parameters('vmNamePrefix')],copyIndex(1))"
-                        }
+                        "modulesUrl": "[variables('modulesUrl')]",
+                        "configurationFunction": "[variables('configurationFunction')]"
                     },
                     "protectedSettings": { }
                 }
