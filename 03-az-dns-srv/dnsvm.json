@@ -123,6 +123,7 @@
           {
             "name": "ipconfig1",
             "properties": {
+              "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[parameters('privateIPAddress')]",
               "subnet": {
                 "id": "[variables('vmSettings').nic.app.subnetRef]"
