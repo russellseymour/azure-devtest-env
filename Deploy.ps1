@@ -1,4 +1,4 @@
-$companyPrefix = "cust-devtest-poc"
+$companyPrefix = "asos-devtest-poc"
 $devVNETResourceGroup = $companyPrefix + '-dev-net'
 $devVNETVirtualNetworkName = $devVNETResourceGroup
 $location = 'North Europe'
@@ -11,7 +11,7 @@ New-AzureResourceGroup -Name $devVNETResourceGroup -Location $location `
  -Verbose -Force
 
 #Create a workstation to remote in and test stuff
-$wrkStnResourceGroup = $companyPrefix + '-wrk-stn'
+$wrkStnResourceGroup = $companyPrefix + '-wrk-bck'
 $wrkStnStorageAccountName = $wrkStnResourceGroup.Replace('-','')
 New-AzureResourceGroup -Name $wrkStnResourceGroup -Location $location `
 -TemplateFile ".\02-az-wrk-stn\azuredeploy.json" `
@@ -20,7 +20,7 @@ New-AzureResourceGroup -Name $wrkStnResourceGroup -Location $location `
 -devVNETVirtualNetworkName $devVNETVirtualNetworkName `
 -storageAccountNameFromTemplate $wrkStnStorageAccountName `
 -appSubnetName "FrontEndSubnet"  `
--vmNamePrefix 'wrk-stn-0' -numberofVms 3 `
+-vmNamePrefix 'wrk-bck-0' -numberofVms 3 `
 -adminPassword $secPwd  -Verbose -Force
 
 #Create the dns server resource group
