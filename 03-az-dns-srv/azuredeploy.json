@@ -71,12 +71,19 @@
     "availabilitySetName": "[concat(resourceGroup().name,'-as')]",
     "numberOfInstances": "[parameters('numberofVms')]",
 
-    "modulesUrl1": "https://github.com/tcsatheesh/azure-devtest-env/raw/master/03-az-dns-srv/ConfigureDnsZone.ps1.zip",
-    "configurationFunction1": "ConfigureDnsZone.ps1\\ConfigureDNSPrimaryZone",
+    "modulesUrl": [
+      "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigurePrimaryDnsZone.ps1.zip",
+      "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigureSecondaryDnsZone.ps1.zip"
+    ],
+    "configurationFunction": [
+      "ConfigureDnsZone.ps1\\ConfigureDNSPrimaryZone",
+      "ConfigureDnsZone.ps1\\ConfigureDNSSecondaryZone"
+    ],
 
-    "modulesUrl2": "https://github.com/tcsatheesh/azure-devtest-env/raw/master/03-az-dns-srv/ConfigureDnsZone.ps1.zip",
-    "configurationFunction2": "ConfigureDnsZone.ps1\\ConfigureDNSSecondaryZone",
-    "vmExtensionName": "dscExtension"
+    "privateIPAddress": [
+        "10.208.2.4",
+        "10.208.2.5"
+    ]
   },
   "resources": [
     {
@@ -109,7 +116,7 @@
           {
             "name": "ipconfig1",
             "properties": {
-              "privateIPAllocationMethod": "Dynamic",
+              "privateIPAddress": "[variables('privateIPAddress')[copyIndex()]]",
               "subnet": {
                 "id": "[variables('subnetRef')]"
               }
@@ -167,54 +174,34 @@
             }
           ]
         }
-      }
-    },
-    {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(parameters('vmNamePrefix'),'1/', variables('vmExtensionName'))]",
-        "apiVersion": "2015-05-01-preview",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'),'1')]"
-        ],
-        "properties": {
-            "publisher": "Microsoft.Powershell",
-            "type": "DSC",
-            "typeHandlerVersion": "1.9",
-            "settings": {
-                "ModulesUrl": "[variables('modulesUrl1')]",
-                "SasToken": "",
-                "ConfigurationFunction": "[variables('configurationFunction1')]",
-                "Properties": {
-                    "MachineName": "concat([parameters('vmNamePrefix')],'1')"
+      },
+        "resources": [
+            {
+                "name": "deployDNS",
+                "type": "extensions",
+                "location": "[resourceGroup().location]",
+                "apiVersion": "2015-05-01-preview",
+                "dependsOn": [
+                    "[concat('Microsoft.Compute/virtualMachines/', concat(parameters('vmNamePrefix'),copyIndex(1)))]"
+                ],
+                "tags": {
+                    "displayName": "dsc"
+                },
+                "properties": {
+                    "publisher": "Microsoft.Powershell",
+                    "type": "DSC",
+                    "typeHandlerVersion": "1.9",
+                    "settings": {
+                        "modulesUrl": "[variables('modulesUrl')[copyIndex()]]",
+                        "configurationFunction": "[variables('configurationFunction')[copyIndex()]]",
+                        "Properties": {
+                            "MachineName": "concat([parameters('vmNamePrefix')],copyIndex(1))"
+                        }
+                    },
+                    "protectedSettings": { }
                 }
-            },
-            "protectedSettings": null
-        }
-    },
-    {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(parameters('vmNamePrefix'),'2/', variables('vmExtensionName'))]",
-        "apiVersion": "2015-05-01-preview",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmNamePrefix'),'2')]",
-            "[concat('Microsoft.Compute/virtualMachines/extensions/', parameters('vmNamePrefix'),'2', variables('vmExtensionName'))]"
-        ],
-        "properties": {
-            "publisher": "Microsoft.Powershell",
-            "type": "DSC",
-            "typeHandlerVersion": "1.9",
-            "settings": {
-                "ModulesUrl": "[variables('modulesUrl2')]",
-                "SasToken": "",
-                "ConfigurationFunction": "[variables('configurationFunction2')]",
-                "Properties": {
-                    "MachineName": "concat([parameters('vmNamePrefix')],'2')"
-                }
-            },
-            "protectedSettings": null
-        }
+            }
+        ]
     }
   ]
 }
