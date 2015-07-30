@@ -73,10 +73,10 @@
         "app": {
           "name": "[concat(parameters('prefix'),'-nic-app-0')]",
           "subnetRef": "[parameters('networkSettings').subnetRef.app]",
-          "dns": {
-            "server1": "[parameters('networkSettings').dns.server2]",
-            "server2": "[parameters('networkSettings').dns.server2]"
-          }
+          "dns": [
+            "[parameters('networkSettings').dns.server1]",
+            "[parameters('networkSettings').dns.server2]"
+          ]
         }
       },
       "disk": {

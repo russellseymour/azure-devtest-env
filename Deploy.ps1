@@ -32,6 +32,7 @@ New-AzureResourceGroup -Name $dnsResourceGroup -Location $location `
 -devVNETResourceGroup $devVNETResourceGroup `
 -devVNETVirtualNetworkName $devVNETVirtualNetworkName `
 -storageAccountNameFromTemplate $dnsStorageAccountName `
+-dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
 -dnsVMNamePrefix "dnssrv-0" -numberofdnsVms 2 `
 -adminPassword $secPwd  -Verbose -Force
 

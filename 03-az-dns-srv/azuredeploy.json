@@ -62,6 +62,19 @@
       "metadata": {
         "description": "the number of dc vms"
       }
+   },
+   "dnsServer01": {
+     "type": "string",
+     "metadata": {
+       "description": "The ip address of the dns server for the .local prefix"
+     }
+   },
+   "dnsServer02": {
+     "type": "string",
+     "metadata": {
+       "description": "The ip address of the dns server for the .local prefix"
+     }
+   }
   },
   "variables": {
     "commonSettings": {
@@ -78,6 +91,10 @@
       "subnetRef": {
         "app": "[concat(variables('commonSettings').vnetID,'/subnets/AppSubnet')]",
         "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
+      },
+      "dns": {
+        "server1": "[parameters('dnsServer01')]",
+        "server2": "[parameters('dnsServer02')]"
       }
     },
     "machineSettings": {
@@ -88,10 +105,10 @@
         "imageSku": "2012-R2-Datacenter",
         "version": "latest"
       }
-  },
-
+    },
     "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/sharedresources.json",
-    "dnsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/dnsvm.json"
+    "dnsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/dnsvm.json",
+    "configurednsTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/configuredns.json"
   },
   "resources": [
     {
