@@ -80,11 +80,7 @@
                 },
                 "app": {
                     "name": "[concat(parameters('prefix'),'-nic-app-0')]",
-                    "subnetRef": "[parameters('networkSettings').subnetRef.app]",
-                    "dnsServers": [
-                        "10.208.2.4",
-                        "10.208.2.5"
-                    ]
+                    "subnetRef": "[parameters('networkSettings').subnetRef.app]"
                 }
             },
             "disk": {
@@ -139,7 +135,10 @@
                     }
                 ],
                 "dnsSettings": {
-                    "dnsServers": "[variables('vmSettings').nic.app.dnsServers]"
+                    "dnsServers": [
+                        "10.208.2.4",
+                        "10.208.2.5"
+                    ]
                 }
             }
         },
