@@ -2,37 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "storageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
-      }
-    },
-    "adminUsername": {
-      "type": "string",
-      "defaultValue": "domadm",
-      "metadata": {
-        "description": "Username for the Virtual Machine."
-      }
-    },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password for the Virtual Machine."
-      }
-    },
-    "windowsOSVersion": {
-      "type": "string",
-      "defaultValue": "2012-R2-Datacenter",
-      "allowedValues": [
-        "2008-R2-SP1",
-        "2012-Datacenter",
-        "2012-R2-Datacenter"
-      ],
-      "metadata": {
-        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version. Allowed values: 2008-R2-SP1, 2012-Datacenter, 2012-R2-Datacenter."
-      }
-    },
     "devVNETResourceGroup": {
       "type": "string",
       "metadata": {
@@ -45,154 +14,149 @@
         "description": "The devVNET network name."
       }
     },
-    "vmNamePrefix": {
+    "storageAccountName": {
       "type": "string",
       "metadata": {
-        "description": "The computer name of the vm."
+        "description": "Unique DNS Name for the Storage Account where the Virtual Machine's disks will be placed."
       }
     },
-    "numberofVms": {
-      "type": "int",
-      "metadata": {
-        "description": "The number of vms required"
+    "storageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS"
+      ]
+    },
+    "adminUserName": {
+      "type": "string",
+      "defaultValue": "domadm"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "prefix" :{
+      "type":"string",
+      "defaultValue" : "[resourceGroup().name]",
+      "metadata" : {
+        "description" : "A prefix used for all resources in this resource group except the computer name"
       }
-    }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2",
+      "metadata": {
+        "description": "Type of VM. Something that supports atleast 2 nics is required."
+      }
+    },
+    "dnsVMNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The dc VM computer name. 14 characters are available to use."
+      }
+    },
+    "numberofdnsVms": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "the number of dc vms"
+      }
   },
   "variables": {
-    "imagePublisher": "MicrosoftWindowsServer",
-    "imageOffer": "WindowsServer",
-    "nicName": "[concat(resourceGroup().name,'-nic-0')]",
-    "subnetName": "DnsSubnet",
-    "storageAccountType": "Standard_LRS",
-    "OSDiskName": "[parameters('vmNamePrefix')]",
-    "vmSize": "Standard_A1",
-    "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]",
-    "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]",
-    "availabilitySetName": "[concat(resourceGroup().name,'-as')]",
-    "numberOfInstances": "[parameters('numberofVms')]",
+    "commonSettings": {
+      "location": "[resourceGroup().location]",
+      "prefix": "[parameters('prefix')]",
+      "vnetID": "[resourceId(parameters('devVNETResourceGroup'), 'Microsoft.Network/virtualNetworks',parameters('devVNETVirtualNetworkName'))]"
+    },
 
-    "modulesUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigureDnsZone.ps1.zip",
-    "configurationFunction": "ConfigureDnsZone.ps1\\ConfigureDNSZones",
+    "storageSettings": {
+      "storageAccountName": "[parameters('storageAccountName')]",
+      "storageType": "[parameters('storageType')]"
+    },
+    "networkSettings": {
+      "subnetRef": {
+        "app": "[concat(variables('commonSettings').vnetID,'/subnets/AppSubnet')]",
+        "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
+      }
+    },
+    "machineSettings": {
+      "adminUserName": "[parameters('adminUserName')]",
+      "os": {
+        "imagePublisher": "MicrosoftWindowsServer",
+        "imageOffer": "WindowsServer",
+        "imageSku": "2012-R2-Datacenter",
+        "version": "latest"
+      }
+  },
 
-    "privateIPAddress": [
-        "10.208.2.4",
-        "10.208.2.5"
-    ]
+    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/sharedresources.json",
+    "dnsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/dnsvm.json"
   },
   "resources": [
     {
-      "type": "Microsoft.Storage/storageAccounts",
-      "name": "[parameters('storageAccountName')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[resourceGroup().location]",
+      "name": "shared-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
       "properties": {
-        "accountType": "[variables('storageAccountType')]"
-      }
-    },
-    {
-      "type": "Microsoft.Compute/availabilitySets",
-      "name": "[variables('availabilitySetName')]",
-      "apiVersion": "2015-05-01-preview",
-      "location": "[resourceGroup().location]",
-      "properties": {}
-    },
-    {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Network/networkInterfaces",
-      "name": "[concat(variables('nicName'),copyIndex(1))]",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "nicLoop",
-        "count": "[variables('numberOfInstances')]"
-      },
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "privateIPAddress": "[variables('privateIPAddress')[copyIndex()]]",
-              "subnet": {
-                "id": "[variables('subnetRef')]"
-              }
-            }
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('sharedTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
           }
-        ]
+        }
       }
     },
     {
-      "apiVersion": "2015-05-01-preview",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
-      "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "vmLoop",
-        "count": "[variables('numberOfInstances')]"
-      },
+      "name": "dnsvm-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
       "dependsOn": [
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-        "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
-        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'), copyIndex(1))]"
+        "[concat('Microsoft.Resources/deployments/', 'shared-resources')]"
       ],
       "properties": {
-        "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('dnsvmTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
         },
-        "hardwareProfile": {
-          "vmSize": "[variables('vmSize')]"
-        },
-        "osProfile": {
-          "computername": "[concat(parameters('vmNamePrefix'),copyIndex(1))]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('imagePublisher')]",
-            "offer": "[variables('imageOffer')]",
-            "sku": "[parameters('windowsOSVersion')]",
-            "version": "latest"
+        "parameters": {
+          "vmNamePrefix": {
+            "value" : "[parameters('dnsVMNamePrefix')]"
           },
-          "osDisk": {
-            "name": "osdisk",
-            "vhd": {
-              "uri": "[concat('http://',parameters('storageAccountName'),'.blob.core.windows.net/vhds','/',variables('OSDiskName'), copyIndex(1),'.vhd')]"
-            },
-            "caching": "ReadWrite",
-            "createOption": "FromImage"
+          "prefix": {
+            "value" : "[concat(variables('commonSettings').prefix,'-dns')]"
+          },
+          "numberofVms": {
+            "value" : "[parameters('numberofdnsVms')]"
+          },
+          "commonSettings": {
+            "value": "[variables('commonSettings')]"
+          },
+          "storageSettings": {
+            "value": "[variables('storageSettings')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          },
+          "machineSettings": {
+            "value": "[variables('machineSettings')]"
+          },
+          "adminPassword" : {
+            "value": "[parameters('adminPassword')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('vmSize')]"
           }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicName'), copyIndex(1)))]"
-            }
-          ]
         }
-      },
-        "resources": [
-            {
-                "name": "deployDNS",
-                "type": "extensions",
-                "location": "[resourceGroup().location]",
-                "apiVersion": "2015-05-01-preview",
-                "dependsOn": [
-                    "[concat('Microsoft.Compute/virtualMachines/', concat(parameters('vmNamePrefix'),copyIndex(1)))]"
-                ],
-                "tags": {
-                    "displayName": "dsc"
-                },
-                "properties": {
-                    "publisher": "Microsoft.Powershell",
-                    "type": "DSC",
-                    "typeHandlerVersion": "1.9",
-                    "settings": {
-                        "modulesUrl": "[variables('modulesUrl')]",
-                        "configurationFunction": "[variables('configurationFunction')]"
-                    },
-                    "protectedSettings": { }
-                }
-            }
-        ]
+      }
     }
   ]
 }
