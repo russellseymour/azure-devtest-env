@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+      "vmName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name of the primary dns server"
+        }
+      },
+      "modulesUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "URL for the DSC configuration module. NOTE: Can be a Github url(raw) to the zip file"
+            }
+        },
+        "configurationFunction": {
+            "type": "string",
+            "metadata": {
+                "description": "DSC configuration function to call"
+            }
+        }
+  },
+  "variables": {
+  },
+  "resources": [
+     {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(parameters('vmName'),'/', variables('vmExtensionName'))]",
+        "apiVersion": "2015-05-01-preview",
+        "location": "[parameters('location')]",
+        "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "1.9",
+            "settings": {
+                "ModulesUrl": "[parameters('modulesUrl')]",
+                "SasToken": "",
+                "ConfigurationFunction": "[parameters('configurationFunction')]",
+                "Properties": {
+                    "MachineName": "[parameters('vmName')]"
+                }
+            },
+            "protectedSettings": null
+        }
+    }
+  ]
+}

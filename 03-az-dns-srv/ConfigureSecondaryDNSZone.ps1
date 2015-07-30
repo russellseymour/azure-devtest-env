@@ -1,6 +1,8 @@
 Configuration ConfigureSecondaryZone
 {
-    Node dnssrv-02
+    param ($MachineName)
+
+    Node $MachineName
     {
       #Install the DNS Role
       WindowsFeature DNSFeature
@@ -23,6 +25,10 @@ Configuration ConfigureSecondaryZone
           TestScript              = { return $false }
           GetScript               = { <# This must return a hash table #> }
           DependsOn               = "[WindowsFeature]DNSTools"
+      }
+      LocalConfigurationManager
+      {
+          RebootNodeIfNeeded = $true
       }
     }
 }

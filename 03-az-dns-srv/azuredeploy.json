@@ -89,7 +89,7 @@
     },
     "networkSettings": {
       "subnetRef": {
-        "app": "[concat(variables('commonSettings').vnetID,'/subnets/AppSubnet')]",
+        "app": "[concat(variables('commonSettings').vnetID,'/subnets/DnsSubnet')]",
         "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
       },
       "dns": {
@@ -171,6 +171,58 @@
           },
           "vmSize" : {
             "value" : "[parameters('vmSize')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "configureprimarydns-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'dnsvm-resources')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configurednsTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "vmName": {
+            "value" : "dnsServer-01"
+          },
+          "modulesUrl": {
+            "value" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigurePrimaryDnsZone.ps1.zip"
+          },
+          "configurationFunction": {
+            "value" : "ConfigurePrimaryDnsZone.ps1\\ConfigurePrimaryZone"
+          }
+        }
+      }
+    },
+    {
+      "name": "configuresecondardns-resources",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', 'configureprimarydns-resources')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('configurednsTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "vmName": {
+            "value" : "dnsServer-02"
+          },
+          "modulesUrl": {
+            "value" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigureSecondaryDnsZone.ps1.zip"
+          },
+          "configurationFunction": {
+            "value" : "ConfigureSecondaryDnsZone.ps1\\ConfigureSecondaryZone"
           }
         }
       }

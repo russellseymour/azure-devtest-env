@@ -1,6 +1,8 @@
 Configuration ConfigurePrimaryZone
 {
-  Node dnssrv-01
+  param ($MachineName)
+
+  Node $MachineName
   {
     #Install the DNS Role
     WindowsFeature DNSFeature
