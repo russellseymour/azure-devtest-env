@@ -115,8 +115,8 @@
         "version": "latest"
       }
     },
-    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/sharedresources.json",
-    "dnsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/dnsvm.json"
+    "sharedTemplateUrl": "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/wip/03-az-dns-srv/sharedresources.json",
+    "dnsvmTemplateUrl":"https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/wip/03-az-dns-srv/dnsvm.json"
   },
   "resources": [
     {
@@ -184,7 +184,7 @@
               "value": "[parameters('dnsServer01')]"
           },
           "modulesUrl": {
-            "value" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigurePrimaryDnsZone.ps1.zip"
+            "value" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/wip/03-az-dns-srv/ConfigurePrimaryDnsZone.ps1.zip"
           },
           "configurationFunction": {
             "value" : "ConfigurePrimaryDnsZone.ps1\\ConfigurePrimaryZone"
@@ -237,7 +237,7 @@
               "value": "[parameters('dnsServer02')]"
           },
           "modulesUrl": {
-            "value" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/master/03-az-dns-srv/ConfigureSecondaryDnsZone.ps1.zip"
+            "value" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/wip/03-az-dns-srv/ConfigureSecondaryDnsZone.ps1.zip"
           },
           "configurationFunction": {
             "value" : "ConfigureSecondaryDnsZone.ps1\\ConfigureSecondaryZone"
