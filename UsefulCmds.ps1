@@ -13,15 +13,23 @@ $vmsToShutdown = @('av-01','chef-01','dev101sql-01','dev101utl-01', `
 'tst101apb-01','tst101boweb01','tst101sqa-01', `
 'tst101sqb-01','tst101utl-01','tst101web-01', `
 'tst101web-02','wsus-01' )
-$vms = Get-AzureVM
-Foreach ($vm in $vms)
-{
-    Foreach ($vmName in $vmsToShutdown)
+
+$vmsToShutdown = @('dnssrv-11','dnssrv-21')
+
+
+#Note: You will need to run this workflow in the 64 bit PowerShell which is available under c:\windows\system32\WindowsPowerShell
+workflow ShutdownAzureVMs {
+    param([string[]]$vmsToShutdown)
+    $vms = Get-AzureVM
+    Foreach -parallel ($vm in $vms)
     {
-        if ( $vmName -eq $vm.Name) {
-                Write-Host "Shutting down... $vmName"
-                Stop-AzureVM -ResourceGroupName $vm.ResourceGroupName -Name $vm.Name  -Force -Verbose
-                #Write-Host "$vmName has been shut down"
+        Foreach ($vmName in $vmsToShutdown)
+        {
+            if ( $vmName -eq $vm.Name) {
+                    (InlineScript { Write-Host "Shutting down... $Using:vmName"})
+                    Stop-AzureVM -ResourceGroupName $vm.ResourceGroupName -Name $vmName  -Force -Verbose
+                    #Write-Host "$vmName has been shut down"
+            }
         }
     }
 }
