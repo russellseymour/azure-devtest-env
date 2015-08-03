@@ -194,6 +194,15 @@
           },
           "configurationFunction": {
             "value" : "ConfigurePrimaryDnsZone.ps1\\ConfigurePrimaryZone"
+          },
+          "dnsZoneName": {
+            "value": "[parameters('dnsZoneName')]"
+          },
+          "secondaryServer": {
+            "value": "[parameters('dnsServer02')]"
+          },
+          "masterServer": {
+            "value": "[parameters('dnsServer01')]"
           }
         }
       }

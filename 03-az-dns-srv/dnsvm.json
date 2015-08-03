@@ -76,13 +76,22 @@
       }
     },
     "dnsZoneName": {
-      "value": "[parameters('dnsZoneName')]"
+        "type": "string",
+        "metadata": {
+          "description": "dns Zone name"
+        }
     },
     "secondaryServer": {
-      "value": "[parameters('dnsServer02')]"
+        "type": "string",
+        "metadata": {
+          "description": "the secondary dns server ip address"
+        }
     },
     "masterServer": {
-      "value": "[parameters('dnsServer01')]"
+        "type": "string",
+        "metadata": {
+          "description": "the primary dns server ip address"
+        }
     }
   },
   "variables": {
