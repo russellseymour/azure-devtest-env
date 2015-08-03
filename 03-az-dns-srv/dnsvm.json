@@ -242,7 +242,11 @@
               "SasToken": "",
               "ConfigurationFunction": "[parameters('configurationFunction')]",
               "Properties": {
-                "MachineName": "[concat(variables('vmSettings').name, copyIndex(1))]"
+                "MachineName": "[concat(variables('vmSettings').name, copyIndex(1))]",
+                "ZoneName": "[parameters('dnsZoneName')]",
+                "TransferType": "Specific",
+                "SecondaryServer": "[parameters('secondaryServer')]",
+                "MasterServer": "[parameters('masterServer')]"					                
               }
             },
             "protectedSettings": null

@@ -87,7 +87,13 @@
      "metadata": {
        "description": "The ip address of the dns server for the .local prefix"
      }
-   }
+   },
+    "dnsZoneName": {
+      "type": "string",
+      "metadata": {
+        "description": "The zone name for the dns server prefix"
+      }
+    }
   },
   "variables": {
     "commonSettings": {
@@ -188,6 +194,15 @@
           },
           "configurationFunction": {
             "value" : "ConfigurePrimaryDnsZone.ps1\\ConfigurePrimaryZone"
+          },
+          "dnsZoneName": {
+            "value": "[parameters('dnsZoneName')]"
+          },
+          "secondaryServer": {
+            "value": "[parameters('dnsServer02')]"
+          },
+          "masterServer": {
+            "value": "[parameters('dnsServer01')]"
           }
         }
       }
@@ -241,6 +256,15 @@
           },
           "configurationFunction": {
             "value" : "ConfigureSecondaryDnsZone.ps1\\ConfigureSecondaryZone"
+          },
+          "dnsZoneName": {
+            "value": "[parameters('dnsZoneName')]"
+          },
+          "secondaryServer": {
+            "value": "[parameters('dnsServer02')]"
+          },
+          "masterServer": {
+            "value": "[parameters('dnsServer01')]"
           }
         }
       }

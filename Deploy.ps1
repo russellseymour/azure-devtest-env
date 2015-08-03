@@ -10,7 +10,7 @@ New-AzureResourceGroup -Name $devVNETResourceGroup -Location $location `
  -TemplateParameterFile ".\01-az-dev-net\azuredeploy.parameters.json" `
  -Verbose -Force
 
-#Create a workstation to remote in and test stuff
+#Create workstations to remote in and test stuff
 $wrkStnResourceGroup = $companyPrefix + '-wrk-stn'
 $wrkStnStorageAccountName = $wrkStnResourceGroup.Replace('-','')
 New-AzureResourceGroup -Name $wrkStnResourceGroup -Location $location `
@@ -33,6 +33,7 @@ New-AzureResourceGroup -Name $dnsResourceGroup -Location $location `
 -devVNETVirtualNetworkName $devVNETVirtualNetworkName `
 -storageAccountNameFromTemplate $dnsStorageAccountName `
 -dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
+-dnsZoneName "custcom.local" `
 -primarydnsVMNamePrefix "dnssrv-1" -numberofprimarydnsVms 1 `
 -secondarydnsVMNamePrefix "dnssrv-2" -numberofsecondarydnsVms 1 `
 -adminPassword $secPwd  -Verbose -Force
