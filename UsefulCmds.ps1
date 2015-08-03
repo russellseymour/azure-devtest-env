@@ -43,7 +43,7 @@ workflow StartAzureVMs {
         {
             if ( $vmName -eq $vm.Name) {
                     (InlineScript { Write-Output "Starting up... $Using:vmName"})
-                    #Start-AzureVM -ResourceGroupName $vm.ResourceGroupName -Name $vmName -Verbose
+                    Start-AzureVM -ResourceGroupName $vm.ResourceGroupName -Name $vmName -Verbose
                     #Write-Host "$vmName has been shut down"
             }
         }
