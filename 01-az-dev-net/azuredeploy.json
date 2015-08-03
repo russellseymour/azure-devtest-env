@@ -4,42 +4,36 @@
   "parameters": {
     "addressPrefix": {
       "type": "string",
-      "defaultValue": "10.208.0.0/18",
       "metadata" : {
         "description" : "Address Prefix"
       }
     },
     "subnetPrefixGateway": {
       "type": "string",
-      "defaultValue": "10.208.1.0/24",
       "metadata" : {
         "description" : "Gateway subnet prefix"
       }
     },
     "subnetPrefixDns": {
       "type": "string",
-      "defaultValue": "10.208.2.0/24",
       "metadata" : {
         "description" : "Gateway subnet prefix"
       }
     },
     "subnetPrefixFrontEnd": {
       "type": "string",
-      "defaultValue": "10.208.4.0/22",
       "metadata" : {
         "description" : "Subnet prefix"
       }
     },
     "subnetPrefixApp": {
       "type": "string",
-      "defaultValue": "10.208.8.0/21",
       "metadata" : {
         "description" : "App subnet prefix"
       }
     },
     "subnetPrefixMgmt": {
       "type": "string",
-      "defaultValue": "10.208.48.0/21",
       "metadata" : {
         "description" : "Subnet prefix"
       }

@@ -8,6 +8,12 @@ $secPwd = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
 New-AzureResourceGroup -Name $devVNETResourceGroup -Location $location `
  -TemplateFile ".\01-az-dev-net\azuredeploy.json" `
  -TemplateParameterFile ".\01-az-dev-net\azuredeploy.parameters.json" `
+ -addressPrefix "10.208.0.0/18" `
+ -subnetPrefixGateway  "10.208.1.0/24" `
+ -subnetPrefixDns "10.208.2.0/24" `
+ -subnetPrefixFrontEnd "10.208.4.0/22" `
+ -subnetPrefixApp "10.208.8.0/21" `
+ -subnetPrefixMgmt "10.208.48.0/21" `
  -Verbose -Force
 
 #Create workstations to remote in and test stuff
