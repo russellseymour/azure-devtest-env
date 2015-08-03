@@ -74,6 +74,15 @@
       "metadata": {
         "description": "DSC configuration function to call"
       }
+    },
+    "dnsZoneName": {
+      "value": "[parameters('dnsZoneName')]"
+    },
+    "secondaryServer": {
+      "value": "[parameters('dnsServer02')]"
+    },
+    "masterServer": {
+      "value": "[parameters('dnsServer01')]"
     }
   },
   "variables": {
@@ -246,7 +255,7 @@
                 "ZoneName": "[parameters('dnsZoneName')]",
                 "TransferType": "Specific",
                 "SecondaryServer": "[parameters('secondaryServer')]",
-                "MasterServer": "[parameters('masterServer')]"					                
+                "MasterServer": "[parameters('masterServer')]"
               }
             },
             "protectedSettings": null
