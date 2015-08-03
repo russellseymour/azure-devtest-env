@@ -1,6 +1,6 @@
 Configuration ConfigureSecondaryZone
 {
-    param ($MachineName,$ZoneName,$MasterServer)
+    param ($MachineName, $ZoneName, $SecondaryServer, $MasterServer)
 
     Import-DscResource -ModuleName xDnsServer
 

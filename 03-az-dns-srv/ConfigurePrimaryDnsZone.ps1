@@ -1,6 +1,6 @@
 Configuration ConfigurePrimaryZone
 {
-  param ($MachineName, $ZoneName, $TransferType, $SecondaryServer)
+  param ($MachineName, $ZoneName, $SecondaryServer, $MasterServer)
 
   Import-DscResource -ModuleName xDnsServer
 
@@ -43,7 +43,7 @@ Configuration ConfigurePrimaryZone
     xDnsServerZoneTransfer TransferToSecondaryServer
     {
         Name = $ZoneName
-        Type = $TransferType
+        Type = "Specific"
         SecondaryServer = $SecondaryServer
         DependsOn               = "[Script]ConfigureForwardZone"
     }
