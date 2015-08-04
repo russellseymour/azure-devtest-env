@@ -75,7 +75,10 @@
       "nic": {
         "mgmt": {
           "name": "[concat(parameters('prefix'),'-nic-mgt-0')]",
-          "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
+          "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]",
+          "dnsServers": [
+              "[parameters('networkSettings').dns.server1]"
+          ]
         }
       },
       "disk": {
@@ -120,7 +123,10 @@
               }
             }
           }
-        ]
+        ],
+        "dnsSettings": {
+            "dnsServers": "[variables('vmSettings').nic.app.dnsServers]"
+        }
       }
     },
     {
