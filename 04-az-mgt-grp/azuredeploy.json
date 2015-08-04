@@ -165,6 +165,12 @@
             "metadata": {
                 "description": "the domain that this machines need to create & join"
             }
+        },
+        "privateIPAddress": {
+            "type": "string",
+            "metadata": {
+                "description": "the ip address of the dc"
+            }
         }
     },
     "variables": {
@@ -180,7 +186,8 @@
         "networkSettings": {
             "subnetRef": {
                 "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
-            }
+            },
+            "ipaddress" : "[parameters('privateIPAddress')]"
         },
         "machineSettings": {
             "adminUserName": "[parameters('adminUserName')]",

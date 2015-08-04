@@ -57,7 +57,7 @@ New-AzureResourceGroup -Name $mgtResourceGroup -Location $location `
   -devVNETResourceGroup $devVNETResourceGroup `
   -devVNETVirtualNetworkName $devVNETVirtualNetworkName `
   -storageAccountNameFromTemplate $mgtStorageAccountName `
-  -dcVMNamePrefix "devdc-0" -numberofdcVms 2 `
+  -dcVMNamePrefix "dc-0" -numberofdcVms 1 `
   -fsVMNamePrefix "fs-0" -numberoffsVms 1 `
   -chefVMNamePrefix "chef-0" -numberofchefVms 1 `
   -esVMNamePrefix "es-0" -numberofesVms 2 `
@@ -66,7 +66,7 @@ New-AzureResourceGroup -Name $mgtResourceGroup -Location $location `
   -provVMNamePrefix "prov-0" -numberofprovVms 1 `
   -avVMNamePrefix "av-0" -numberofavVms 1 `
   -sizeOfDiskInGB 40 `
-  -domainName $domainName `
+  -domainName $domainName -privateIPAddress "10.208.48.4" `
  -adminPassword $secPwd  -Verbose -Force
 
 #Create the developer test environment resource group
