@@ -116,7 +116,7 @@
                         "name": "ipconfig1",
                         "properties": {
                             "privateIPAllocationMethod": "Static",
-                            "privateIPAddress": "[variables('vmSettings'.nic.mgmt.ipaddress)]"
+                            "privateIPAddress": "[variables('vmSettings').nic.mgmt.ipaddress]"
                         }
                     }
                 ]
