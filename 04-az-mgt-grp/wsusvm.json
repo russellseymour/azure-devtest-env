@@ -125,7 +125,7 @@
           }
         ],
         "dnsSettings": {
-            "dnsServers": "[variables('vmSettings').nic.app.dnsServers]"
+            "dnsServers": "[variables('vmSettings').nic.mgmt.dnsServers]"
         }
       }
     },
