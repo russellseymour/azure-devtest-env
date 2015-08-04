@@ -191,9 +191,15 @@
                 "version": "latest"
             },
             "domain" : {
-                "modulesUrl" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/wip/04-az-mgt-grp/Configuration.zip",
-                "configurationFunction": "Configuration.ps1\\DomainJoin",
-                "name" : "[parameters('domainName')]"
+                "name" : "[parameters('domainName')]",
+                "server" : {
+                    "modulesUrl" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/wip/04-az-mgt-grp/CreateADPDC.ps1.zip",
+                    "configurationFunction": "CreateADPDC.ps1\\CreateADPDC"
+                },
+                "client" : {
+                    "modulesUrl" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/wip/04-az-mgt-grp/Configuration.zip",
+                    "configurationFunction": "Configuration.ps1\\DomainJoin"
+                }
             }
         },
         "linuxMachineSettings": {

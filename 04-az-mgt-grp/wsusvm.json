@@ -210,8 +210,8 @@
               "type": "DSC",
               "typeHandlerVersion": "2.1",
               "settings": {
-                "ModulesUrl": "[parameters('machineSettings').domain.modulesUrl]",
-                "ConfigurationFunction": "[parameters('machineSettings').domain.configurationFunction]",
+                "ModulesUrl": "[parameters('machineSettings').domain.client.modulesUrl]",
+                "ConfigurationFunction": "[parameters('machineSettings').domain.client.configurationFunction]",
                 "Properties": {
                   "DomainName": "[parameters('machineSettings').domain.name]",
                   "AdminCreds": {
