@@ -14,7 +14,7 @@ $vmsList = @(
 'tst101sqa-01', 'tst101utl-01','tst101web-01',  'tst101web-02',  `
 'tst101apa-01','tst101apa-02', 'tst101apb-01', 'tst101boweb01', 'tst101sqb-01' )
 
-$vmsToShutdown = @('dnssrv-11','dnssrv-21')
+$vmsList = @('dnssrv-11','dnssrv-21')
 
 
 #Note: You will need to run this workflow in the 64 bit PowerShell which is available under c:\windows\system32\WindowsPowerShell
@@ -26,8 +26,9 @@ workflow ShutdownAzureVMs {
         Foreach ($vmName in $vmsList)
         {
             if ( $vmName -eq $vm.Name) {
-                    (InlineScript { Write-Output "Shutting down... $Using:vmName"})
-                    Stop-AzureVM -ResourceGroupName $vm.ResourceGroupName -Name $vmName  -Force -Verbose
+                    $resourceGroupName = $vm.ResourceGroupName
+                    (InlineScript { Write-Output "Shutting down... $Using:vmName in $using:resourceGroupName"})
+                    #Stop-AzureVM -ResourceGroupName $vm.ResourceGroupName -Name $vmName  -Force -Verbose
                     #Write-Host "$vmName has been shut down"
             }
         }
@@ -42,7 +43,8 @@ workflow StartAzureVMs {
         Foreach ($vmName in $vmsList)
         {
             if ( $vmName -eq $vm.Name) {
-                    (InlineScript { Write-Output "Starting up... $Using:vmName"})
+                    $resourceGroupName = $vm.ResourceGroupName
+                    (InlineScript { Write-Output "Starting up... $Using:vmName in $using:resourceGroupName"})
                     Start-AzureVM -ResourceGroupName $vm.ResourceGroupName -Name $vmName -Verbose
                     #Write-Host "$vmName has been shut down"
             }
