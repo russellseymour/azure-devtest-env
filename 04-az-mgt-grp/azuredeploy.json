@@ -159,6 +159,12 @@
             "metadata": {
                 "description": "the number of provisioning vms"
             }
+        },
+        "domainName": {
+            "type": "string",
+            "metadata": {
+                "description": "the domain that this machines need to create & join"
+            }
         }
     },
     "variables": {
@@ -183,6 +189,11 @@
                 "imageOffer": "WindowsServer",
                 "imageSku": "2012-R2-Datacenter",
                 "version": "latest"
+            },
+            "domain" : {
+                "modulesUrl" : "https://raw.githubusercontent.com/tcsatheesh/azure-devtest-env/wip/04-az-mgt-grp/Configuration.zip",
+                "configurationFunction": "Configuration.ps1\\DomainJoin",
+                "name" : "[parameters('domainName')]"
             }
         },
         "linuxMachineSettings": {
