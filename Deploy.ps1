@@ -3,6 +3,8 @@ $devVNETResourceGroup = $companyPrefix + '-dev-net'
 $devVNETVirtualNetworkName = $devVNETResourceGroup
 $location = 'North Europe'
 $secPwd = ConvertTo-SecureString "P@ssw0rd!" -AsPlainText -Force
+$domainName = "pocdev.azure"
+$appDnsZoneName = "app.local"
 
 #Create the developer network and associated resource group
 New-AzureResourceGroup -Name $devVNETResourceGroup -Location $location `
@@ -39,7 +41,9 @@ New-AzureResourceGroup -Name $dnsResourceGroup -Location $location `
 -devVNETVirtualNetworkName $devVNETVirtualNetworkName `
 -storageAccountNameFromTemplate $dnsStorageAccountName `
 -dnsServer01 "10.208.2.4" -dnsServer02 "10.208.2.5" `
--dnsZoneName "custcom.local" `
+-dnsZoneName $appDnsZoneName `
+-conditionalForwardZoneName $domainName `
+-conditionalForwardMasterServer "10.208.48.4"
 -primarydnsVMNamePrefix "dnssrv-1" -numberofprimarydnsVms 1 `
 -secondarydnsVMNamePrefix "dnssrv-2" -numberofsecondarydnsVms 1 `
 -adminPassword $secPwd  -Verbose -Force
@@ -62,6 +66,7 @@ New-AzureResourceGroup -Name $mgtResourceGroup -Location $location `
   -provVMNamePrefix "prov-0" -numberofprovVms 1 `
   -avVMNamePrefix "av-0" -numberofavVms 1 `
   -sizeOfDiskInGB 40 `
+  -domainName $domainName `
  -adminPassword $secPwd  -Verbose -Force
 
 #Create the developer test environment resource group

@@ -92,6 +92,18 @@
         "metadata": {
           "description": "the primary dns server ip address"
         }
+    },
+    "conditionalForwardZoneName": {
+        "type": "string",
+        "metadata": {
+          "description": "the dns zone name to forward to"
+        }
+    },
+    "conditionalForwardMasterServer": {
+        "type": "string",
+        "metadata": {
+          "description": "the conditional forward dns server ip address"
+        }
     }
   },
   "variables": {
@@ -263,7 +275,9 @@
                 "MachineName": "[concat(variables('vmSettings').name, copyIndex(1))]",
                 "ZoneName": "[parameters('dnsZoneName')]",
                 "SecondaryServer": "[parameters('secondaryServer')]",
-                "MasterServer": "[parameters('masterServer')]"
+                "MasterServer": "[parameters('masterServer')]",
+                "CondForwardZoneName": "[parameters('conditionalForwardZoneName')]",
+                "CondForwardMasterServer": "[parameters('conditionalForwardMasterServer')]"
               }
             },
             "protectedSettings": null

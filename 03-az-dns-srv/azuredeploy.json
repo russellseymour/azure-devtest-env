@@ -93,7 +93,19 @@
       "metadata": {
         "description": "The zone name for the dns server prefix"
       }
-    }
+  },
+  "conditionalForwardZoneName": {
+      "type": "string",
+      "metadata": {
+        "description": "the dns zone name to forward to"
+      }
+  },
+  "conditionalForwardMasterServer": {
+      "type": "string",
+      "metadata": {
+        "description": "the conditional forward dns server ip address"
+      }
+   }
   },
   "variables": {
     "commonSettings": {
@@ -203,6 +215,13 @@
           },
           "masterServer": {
             "value": "[parameters('dnsServer01')]"
+          },
+          "conditionalForwardZoneName": {
+            "value": "[parameters('conditionalForwardZoneName')]"
+          },
+          "conditionalForwardMasterServer": {
+              "type": "string",
+              "value": "[parameters('conditionalForwardMasterServer')]"
           }
         }
       }

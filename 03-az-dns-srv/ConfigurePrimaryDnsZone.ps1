@@ -1,6 +1,6 @@
 Configuration ConfigurePrimaryZone
 {
-  param ($MachineName, $ZoneName, $SecondaryServer, $MasterServer)
+  param ($MachineName, $ZoneName, $SecondaryServer, $MasterServer, $CondForwardZoneName, $CondForwardMasterServer)
 
   Import-DscResource -ModuleName xDnsServer
 
@@ -22,7 +22,8 @@ Configuration ConfigurePrimaryZone
     {
         SetScript = {
           Write-Verbose "Add primary zone $using:ZoneName"
-          Add-DnsServerPrimaryZone -Name $zoneName -ZoneFile "custcom.local.dns" -DynamicUpdate 'NonsecureAndSecure'
+          Add-DnsServerPrimaryZone -Name $ZoneName -ZoneFile "custcom.local.dns" -DynamicUpdate "NonsecureAndSecure"
+          Add-DnsServerConditionalForwarderZone -Name $CondForwardZoneName -MasterServers $CondForwardMasterServer -PassThru
         }
         #Dummy test script to force the set script to run.
         TestScript              = {
