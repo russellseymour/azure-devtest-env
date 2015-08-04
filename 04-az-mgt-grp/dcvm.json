@@ -75,7 +75,8 @@
             "nic": {
                 "mgmt": {
                     "name": "[concat(parameters('prefix'),'-nic-mgt-0')]",
-                    "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
+                    "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]",
+                    "ipaddress": "[parameters('networkSettings').ipaddress]",
                 }
             },
             "disk": {
@@ -114,7 +115,8 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
+                            "privateIPAllocationMethod": "Static",
+                            "privateIPAddress": "[variables('vmSettings'.nic.mgmt.ipaddress)]",
                             "subnet": {
                                 "id": "[variables('vmSettings').nic.mgmt.subnetRef]"
                             }
