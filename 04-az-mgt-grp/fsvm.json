@@ -75,7 +75,10 @@
       "nic": {
         "mgmt": {
           "name": "[concat(parameters('prefix'),'-nic-mgt-0')]",
-          "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]"
+          "subnetRef": "[parameters('networkSettings').subnetRef.mgmt]",
+          "dnsServers": [
+              "[parameters('networkSettings').dns.server1]"
+          ]
         }
       },
       "disk": {
@@ -120,7 +123,10 @@
               }
             }
           }
-        ]
+        ],
+        "dnsSettings": {
+            "dnsServers": "[variables('vmSettings').nic.mgmt.dnsServers]"
+        }
       }
     },
     {
@@ -195,7 +201,39 @@
             }
           ]
         }
-      }
+      },
+      "resources" :[
+          {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('vmSettings').name, copyIndex(1),'/domainjoin')]",
+            "apiVersion": "2015-05-01-preview",
+            "location": "[parameters('commonSettings').location]",
+            "dependsOn": [
+              "[concat('Microsoft.Compute/virtualMachines/', variables('vmSettings').name, copyIndex(1))]"
+            ],
+            "properties": {
+              "publisher": "Microsoft.Powershell",
+              "type": "DSC",
+              "typeHandlerVersion": "2.1",
+              "settings": {
+                "ModulesUrl": "[parameters('machineSettings').domain.client.modulesUrl]",
+                "ConfigurationFunction": "[parameters('machineSettings').domain.client.configurationFunction]",
+                "Properties": {
+                  "DomainName": "[parameters('machineSettings').domain.name]",
+                  "AdminCreds": {
+                    "UserName": "[parameters('machineSettings').adminUserName]",
+                    "Password": "PrivateSettingsRef:adminPassword"
+                  }
+                }
+              },
+              "protectedSettings": {
+                "Items": {
+                  "adminPassword": "[parameters('adminPassword')]"
+                }
+              }
+            }
+          }
+      ]
     }
   ]
 }
