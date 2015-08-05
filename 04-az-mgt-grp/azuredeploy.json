@@ -187,7 +187,10 @@
             "subnetRef": {
                 "mgmt": "[concat(variables('commonSettings').vnetID,'/subnets/MgmtSubnet')]"
             },
-            "ipaddress" : "[parameters('privateIPAddress')]"
+            "ipaddress" : "[parameters('privateIPAddress')]",
+            "dns": {
+              "server1": "[parameters('privateIPAddress')]"
+            }
         },
         "machineSettings": {
             "adminUserName": "[parameters('adminUserName')]",
