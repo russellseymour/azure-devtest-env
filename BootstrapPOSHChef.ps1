@@ -79,6 +79,7 @@ foreach ($module in $modules) {
 Write-Output "Configuring POSHChef"
 
 # Ensure POSHChef is loaded
+Import-Module Logging
 Import-Module POSHChef
 
 if (!(Test-Path -Path "C:\POSHChef\conf\client.psd1")) {
