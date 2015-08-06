@@ -68,7 +68,7 @@ foreach ($module in $modules) {
         "https://www.myget.org/F/poshchef/api/v2"
         $paths.$module
       )
-      $cmd = "Install-Module -NugetPackageId {0} -NugetSource {1} -Destination {2}" -f $replacements
+      $cmd = "Install-Module -NugetPackageId {0} -NugetSource {1} -Destination '{2}'" -f $replacements
 
       Write-Verbose ("{0} install command: {1}" -f $module, $cmd)
       Invoke-Expression $cmd
